@@ -1,0 +1,1021 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tepkime Atölyesi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: lab-notebook column; a sticky reaction rail on top, each reaction is one long worksheet page */
+:root{
+  --bg:#EDF1F4; --surface:#FFFFFF; --sunk:#F5F8FA; --ink:#122031; --muted:#556375; --line:#D2DAE3;
+  --accent:#1766D6; --accent-soft:#DCE8FA; --flame:#DC5419; --ok:#16885A; --warn:#B98000; --bond:#4A5565;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0C1219; --surface:#131B26; --sunk:#0F161F; --ink:#E3EAF2; --muted:#8E9CAE; --line:#243142;
+  --accent:#5C9DFF; --accent-soft:#18294A; --flame:#FF7A42; --ok:#3CC488; --warn:#E6B43A; --bond:#A6B1C0; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0C1219; --surface:#131B26; --sunk:#0F161F; --ink:#E3EAF2; --muted:#8E9CAE; --line:#243142;
+  --accent:#5C9DFF; --accent-soft:#18294A; --flame:#FF7A42; --ok:#3CC488; --warn:#E6B43A; --bond:#A6B1C0; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
+.wrap{max-width:1100px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.1}
+h2{font-size:1.45rem;font-weight:800;letter-spacing:-.01em}
+h3{font-size:1.02rem;font-weight:600;font-family:var(--f-body)}
+p{margin:0}
+a{color:var(--accent)}
+button,input{font:inherit}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.eyebrow{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+.top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 16px;margin-bottom:14px}
+.brand{font-family:var(--f-display);font-weight:800;font-size:1.3rem;letter-spacing:-.01em}
+.brand span{color:var(--accent)}
+
+.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+.rail-in{display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin;padding-bottom:2px}
+.chip{flex:0 0 auto;display:flex;gap:8px;align-items:center;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px 6px 6px;cursor:pointer;font-size:.88rem;white-space:nowrap}
+.chip b{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--sunk);font-family:var(--f-mono);font-weight:500;font-size:.78rem}
+.chip[aria-current="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.chip[aria-current="true"] b{background:rgba(255,255,255,.22);color:#fff}
+
+.hero{display:grid;gap:12px;margin-bottom:26px}
+.hero h1{font-size:clamp(2rem,5.5vw,3.3rem);font-weight:800;letter-spacing:-.025em}
+.eq{font-family:var(--f-mono);font-size:clamp(1.05rem,3.2vw,1.6rem);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px;overflow-x:auto;white-space:nowrap}
+.eq sub{font-size:.62em}
+.eq sup{font-size:.62em}
+.eq .st{font-size:.55em;color:var(--muted);vertical-align:-.15em;margin-left:1px}
+.eq .arr{color:var(--accent);margin:0 .35em}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:.8rem;border:1px solid var(--line);border-radius:6px;padding:2px 8px;color:var(--muted);background:var(--surface)}
+.tag.dh{color:var(--flame);border-color:color-mix(in srgb,var(--flame) 40%,var(--line))}
+.answer{font-size:1.08rem;max-width:68ch}
+.q{color:var(--muted);max-width:68ch;font-style:italic}
+
+section.block{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:18px;display:grid;gap:14px;min-width:0}
+.bhead{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;justify-content:space-between}
+.bhead p{color:var(--muted);font-size:.92rem;max-width:62ch}
+
+.simgrid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px}
+@media (max-width:820px){.simgrid{grid-template-columns:minmax(0,1fr)}}
+.stage{position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--sunk)}
+.stage canvas{display:block;width:100%}
+.stage .over{position:absolute;left:10px;top:8px;font-family:var(--f-mono);font-size:.75rem;color:var(--muted);pointer-events:none}
+.controls{display:grid;gap:12px;align-content:start}
+.ctl label{display:flex;justify-content:space-between;font-size:.88rem;gap:8px}
+.ctl label output{font-family:var(--f-mono);font-variant-numeric:tabular-nums;color:var(--accent)}
+.ctl input[type=range]{width:100%;accent-color:var(--accent)}
+.btns{display:flex;flex-wrap:wrap;gap:6px}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:.88rem}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.fire{background:var(--flame);border-color:var(--flame);color:#fff}
+.chk{display:flex;gap:8px;align-items:center;font-size:.88rem}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+@media (max-width:820px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.stat{border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--sunk);min-width:0}
+.stat b{display:block;font-family:var(--f-mono);font-size:1.15rem;font-weight:500;font-variant-numeric:tabular-nums}
+.stat span{font-size:.7rem;color:var(--muted);line-height:1.2;display:block}
+.stat.eff b{color:var(--ok)} .stat.lowE b{color:var(--muted)} .stat.ori b{color:var(--warn)}
+.species{display:grid;gap:5px}
+.sp{display:grid;grid-template-columns:92px minmax(0,1fr) 30px;gap:8px;align-items:center;font-size:.8rem}
+.sp .f{font-family:var(--f-mono)}
+.sp .bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.sp .bar i{display:block;height:100%;background:var(--accent);transition:width .2s}
+.sp.prod .bar i{background:var(--ok)}
+.sp em{font-style:normal;font-family:var(--f-mono);text-align:right;font-variant-numeric:tabular-nums}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.78rem;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px;border:2px solid currentColor;background:transparent}
+.note{font-size:.84rem;color:var(--muted);border-left:3px solid var(--line);padding-left:10px}
+.energy svg{width:100%;height:auto;display:block}
+
+.modelgrid{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px}
+@media (max-width:820px){.modelgrid{grid-template-columns:minmax(0,1fr)}}
+.stagecap{font-weight:600;font-size:.92rem}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{font-weight:600;color:var(--muted);font-size:.78rem}
+td.n{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right}
+td.okc{color:var(--ok);font-weight:600;text-align:center}
+.tscroll{overflow-x:auto}
+.bonds{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.bonds{grid-template-columns:1fr}}
+.bonds ul{margin:6px 0 0;padding-left:18px;font-size:.9rem}
+.bonds h3.br{color:var(--flame)} .bonds h3.fm{color:var(--ok)}
+
+ol.steps{margin:0;padding:0;list-style:none;display:grid;gap:10px;counter-reset:s}
+ol.steps li{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;counter-increment:s}
+ol.steps li::before{content:counter(s);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--accent);color:var(--accent);font-family:var(--f-mono);font-size:.85rem}
+
+.life{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:700px){.life{grid-template-columns:1fr}}
+.life .col{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--sunk);min-width:0}
+.life ul{margin:8px 0 0;padding-left:18px;display:grid;gap:5px;font-size:.93rem}
+.life .plus h3{color:var(--ok)} .life .minus h3{color:var(--flame)}
+.life .wide{grid-column:1/-1}
+
+.kit{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.ball{display:grid;grid-template-columns:40px minmax(0,1fr);gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--sunk)}
+.ball .dot{width:36px;height:36px;border-radius:50%;box-shadow:inset -5px -6px 10px rgba(0,0,0,.28),inset 4px 4px 8px rgba(255,255,255,.35);border:1px solid rgba(0,0,0,.15)}
+.ball b{display:block;font-size:.92rem}
+.ball span{font-size:.78rem;color:var(--muted);display:block}
+.tips{margin:0;padding-left:18px;font-size:.92rem;display:grid;gap:4px}
+
+.qrwrap{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:center}
+@media (max-width:560px){.qrwrap{grid-template-columns:1fr}}
+.qrcard{background:#fff;color:#111;border-radius:12px;padding:14px;width:max-content;display:grid;gap:6px;justify-items:center;border:1px solid var(--line)}
+.qrcard small{font-family:var(--f-mono);font-size:.7rem;color:#333}
+.qrbox{width:180px;height:180px}
+.qrbox img,.qrbox canvas{width:180px!important;height:180px!important}
+.url{font-family:var(--f-mono);font-size:.82rem;word-break:break-all;background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:8px 10px;user-select:all}
+.src{font-size:.88rem;display:grid;gap:4px;padding-left:18px;margin:0}
+footer{color:var(--muted);font-size:.82rem;margin-top:26px;display:grid;gap:4px}
+@media (prefers-reduced-motion: reduce){.sp .bar i{transition:none}}
+</style>
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Tepkime <span>Atölyesi</span></div>
+    <div class="eyebrow">10. Sınıf Kimya · Kimyasal Tepkimeler · Performans Görevi</div>
+  </header>
+  <nav class="rail" aria-label="Tepkimeler"><div class="rail-in" id="rail"></div></nav>
+  <main id="view"></main>
+  <footer>
+    <div>Simülasyondaki hızlar, enerji ölçeği ve molekül boyutları gösterim amaçlı ölçeklenmiştir. Molekül çizimleri iki boyutlu yapı formülleridir.</div>
+    <div>Tepkime Atölyesi · 10. Sınıf Kimya performans görevi için hazırlanan dijital materyal</div>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+"use strict";
+const BASE_URL = (location.protocol.startsWith("http") ? location.origin + location.pathname : "");
+
+/* ---------- Elements (renk & 3B model önerileri) ---------- */
+const EL = {
+  H:{c:'#F3F4F6',r:.30,m:1.008,ad:'Hidrojen',renk:'Beyaz',cm:2},
+  C:{c:'#3A3F47',r:.40,m:12.011,ad:'Karbon',renk:'Siyah',cm:3.5},
+  N:{c:'#3B5FE0',r:.39,m:14.007,ad:'Azot',renk:'Mavi',cm:3.5},
+  O:{c:'#E2412F',r:.38,m:15.999,ad:'Oksijen',renk:'Kırmızı',cm:3.5},
+  S:{c:'#E9C52B',r:.48,m:32.06,ad:'Kükürt',renk:'Sarı',cm:4.5},
+  Cl:{c:'#33A852',r:.48,m:35.45,ad:'Klor',renk:'Yeşil',cm:4.5},
+  Cu:{c:'#C77B3E',r:.55,m:63.55,ad:'Bakır',renk:'Bakır / turuncu',cm:5},
+  Ag:{c:'#BFC6CF',r:.58,m:107.87,ad:'Gümüş',renk:'Gümüş (folyo kaplı)',cm:5.5},
+  Zn:{c:'#8C8FC2',r:.52,m:65.38,ad:'Çinko',renk:'Lila',cm:5},
+  Fe:{c:'#6B7280',r:.53,m:55.85,ad:'Demir',renk:'Koyu gri',cm:5},
+  e:{c:'#A855F7',r:.17,m:0,ad:'Elektron',renk:'Mor boncuk',cm:0.8},
+};
+
+/* ---------- Species ---------- */
+const SP = {
+  Cu:{smi:'[Cu]',f:'Cu',ad:'Bakır'},
+  O2:{smi:'O=O',f:'O2',ad:'Oksijen'},
+  CuO:{smi:'[Cu+2]~[O-2]',f:'CuO',ad:'Bakır(II) oksit'},
+  Ag:{smi:'[Ag]',f:'Ag',ad:'Gümüş'},
+  H2S:{smi:'S',f:'H2S',ad:'Hidrojen sülfür',site:0},
+  Ag2S:{smi:'[Ag+]~[S-2]~[Ag+]',f:'Ag2S',ad:'Gümüş sülfür'},
+  H2:{smi:'[H][H]',f:'H2',ad:'Hidrojen'},
+  Zn:{smi:'[Zn]',f:'Zn',ad:'Çinko'},
+  HCl:{smi:'Cl',f:'HCl',ad:'Hidroklorik asit',site:1},
+  ZnCl2:{smi:'[Cl-]~[Zn+2]~[Cl-]',f:'ZnCl2',ad:'Çinko klorür'},
+  Fe:{smi:'[Fe]',f:'Fe',ad:'Demir'},
+  CuSO4:{smi:'[Cu+2]~[O-]S(=O)(=O)[O-]',f:'CuSO4',ad:'Bakır(II) sülfat',site:0},
+  FeSO4:{smi:'[Fe+2]~[O-]S(=O)(=O)[O-]',f:'FeSO4',ad:'Demir(II) sülfat'},
+  Zn2:{smi:'[Zn+2]',f:'Zn',ch:'2+',ad:'Çinko iyonu'},
+  el:{smi:'[e-]',f:'e',ch:'−',ad:'Elektron'},
+  OH:{smi:'[OH-]',f:'OH',ch:'−',ad:'Hidroksit iyonu'},
+  H2O:{smi:'O',f:'H2O',ad:'Su',site:0},
+  glc:{smi:'OCC1OC(O)C(O)C(O)C1O',f:'C6H12O6',ad:'Glikoz'},
+  CO2:{smi:'O=C=O',f:'CO2',ad:'Karbon dioksit',site:1},
+  oct:{smi:'CCCCCCCC',f:'C8H18',ad:'Oktan'},
+  asp:{smi:'CC(=O)OC1=CC=CC=C1C(=O)O',f:'C9H8O4',ad:'Aspirin',site:1},
+  sal:{smi:'OC1=CC=CC=C1C(=O)O',f:'C7H6O3',ad:'Salisilik asit'},
+  ace:{smi:'CC(=O)O',f:'C2H4O2',ad:'Asetik asit'},
+  lac:{smi:'CC(O)C(=O)O',f:'C3H6O3',ad:'Laktik asit'},
+  NH3:{smi:'N',f:'NH3',ad:'Amonyak',site:0},
+  ure:{smi:'NC(=O)N',f:'CO(NH2)2',ad:'Üre'},
+};
+
+/* ---------- Reactions ---------- */
+const RX = [
+{id:'bakir', no:1, kisa:'Bakırın oksitlenmesi', title:'Bakır havayla temas edince',
+ eq:{r:[[2,'Cu','k'],[1,'O2','g']], p:[[2,'CuO','k']]},
+ tags:['Sentez (birleşme)','Redoks','Yanma değil, yavaş oksitlenme'], dh:'ΔH ≈ −314 kJ (2 mol CuO için)', dhLevel:-.55,
+ soru:'Bakır bir kap veya bakır para havayla uzun süre temas ettiğinde yüzeyinde neden renk değişimi meydana gelir?',
+ cevap:'Bakır atomları havadaki oksijen molekülleriyle çarpışır. Her bakır atomu oksijene 2 elektron verir ve yüzeyde parlak metalin yerine siyah-kahverengi bakır(II) oksit (CuO) tabakası oluşur. Renk değişimi bu yeni maddeden gelir. Uzun sürede nem ve karbon dioksitle birlikte yeşil renkli bakır karbonat tabakası (patina) da oluşabilir.',
+ sim:{pair:['Cu','O2'], primary:'O2', ea:1.4, T:400, boost:1.5},
+ mek:['O₂ molekülleri bakır yüzeyine çarpar ve yüzeye tutunur.',
+      'Çarpışmanın enerjisi yeterliyse O=O çift bağı kırılır, oksijen atomları ayrı ayrı bakır atomlarına yönelir.',
+      'Her Cu atomu 2 elektron vererek Cu²⁺ iyonu, her O atomu 2 elektron alarak O²⁻ iyonu olur.',
+      'Zıt yüklü iyonlar iyonik bağla bir araya gelir ve yüzeydeki CuO tabakası kalınlaşır.'],
+ kirilan:['O=O kovalent çift bağı','Yüzeydeki Cu–Cu metalik bağları'], olusan:['Cu²⁺ ve O²⁻ iyonları arasında iyonik bağ'],
+ gunluk:['Bakır cezve, tencere ve tepsilerin zamanla kararması','Bakır kapların bakırcılarda düzenli olarak kalaylanması','Bakır çatıların ve heykellerin yeşile dönmesi (patina)','Elektrik kablolarının açıkta kalan uçlarının kararması'],
+ fayda:['Oksit ve patina tabakası alttaki metali korur; bakır çatılar yüzyıllarca dayanabilir.','CuO seramik sırlarında yeşil-mavi renk vermek için, ayrıca pillerde ve katalizörlerde kullanılır.','Bakırın yavaş oksitlenmesi onu su tesisatı ve kablo için uygun bir metal yapar.'],
+ zarar:['Kalaysız bakır kapta sirke, domates, turşu gibi asitli yiyecekler bekletilirse bakır iyonları yiyeceğe geçer ve bakır zehirlenmesine yol açabilir.','Kararmış elektrik kontaklarında direnç artar, bağlantı ısınır.','Kapları parlatmak için kullanılan aşındırıcılar her seferinde bir miktar metali de söker.'],
+ onem:'Bakırın oksitlenmesi metallerin korozyonunu anlamak için en sade örnektir. Bakır kapları kalaylama geleneği de bu tepkimeyi ve yan etkilerini önlemek için ortaya çıkmıştır.'},
+
+{id:'gumus', no:2, kisa:'Gümüşün kararması', title:'Gümüş takılar neden kararır?',
+ eq:{r:[[2,'Ag','k'],[1,'H2S','g']], p:[[1,'Ag2S','k'],[1,'H2','g']]},
+ tags:['Redoks','Korozyon'], dh:'ΔH ≈ −12 kJ (hafif ekzotermik)', dhLevel:-.18,
+ soru:'Gümüş takılar zamanla neden kararır? Gümüşün havadaki kükürtlü bileşiklerle etkileşimini modelleyiniz.',
+ cevap:'Havada çok az miktarda bulunan hidrojen sülfür (H₂S) gümüş yüzeyine çarpar. Gümüş atomları kükürtle siyah renkli gümüş sülfürü (Ag₂S) oluşturur. Bu ince tabaka ışığı metal gibi yansıtmadığı için takı kararmış görünür. Gerçekte havadaki oksijen de tepkimeye katılır: 4Ag + 2H₂S + O₂ → 2Ag₂S + 2H₂O. Çalışma yaprağındaki denklem bunun sadeleştirilmiş hâlidir.',
+ sim:{pair:['Ag','H2S'], primary:'H2S', ea:1.4, T:400, boost:.6},
+ mek:['H₂S molekülü kükürt atomu gümüşe dönük şekilde yüzeye çarpar ve tutunur.',
+      'S–H bağları kırılır; kükürt atomu iki gümüş atomu arasına yerleşir.',
+      'Her gümüş atomu 1 elektron vererek Ag⁺, kükürt 2 elektron alarak S²⁻ olur.',
+      'Serbest kalan hidrojen atomları ikişer birleşip H₂ molekülü oluşturur (oksijen varsa su oluşur).'],
+ kirilan:['2 tane S–H kovalent bağı','Yüzeydeki Ag–Ag metalik bağları'], olusan:['Ag⁺ ile S²⁻ arasında bağlar (Ag₂S)','H–H kovalent bağı'],
+ gunluk:['Gümüş kaşık ve çatalların yumurta, soğan ve sarımsakla temas edince kararması','Lastik bant veya kauçuk ile saklanan takıların hızla kararması','Kuyumcuların desenleri belirginleştirmek için yaptığı "oksitli gümüş" işçiliği','Şehir havasındaki ve kaplıca bölgelerindeki kükürtlü gazlar'],
+ fayda:['Kuyumcular kararmayı bilerek yapar; telkari ve kakma işlerinde desenler böylece öne çıkar.','Ag₂S bir yarı iletkendir; kızılötesi algılayıcılar ve nanoteknoloji araştırmalarında kullanılır.','Gümüşün kararması ortamda kükürtlü gaz bulunduğunu gösteren basit bir işarettir.'],
+ zarar:['Takı ve sofra gümüşlerinin görünümü bozulur, değeri düşmüş gibi görünür.','Aşındırıcı cilalar her temizlikte bir miktar gümüşü de söker.','H₂S yüksek derişimde çok zehirli bir gazdır (çürük yumurta kokusu).'],
+ onem:'Alüminyum folyo, karbonat ve sıcak suyla yapılan temizlikte Ag₂S tekrar gümüş metaline dönüşür ve metal kaybı olmaz. Bu, aynı redoks olayının ters yönde kullanılmasıdır.'},
+
+{id:'cinko', no:3, kisa:'Çinko ve asit', title:'Çinko asitle karşılaşınca',
+ eq:{r:[[1,'Zn','k'],[2,'HCl','suda']], p:[[1,'ZnCl2','suda'],[1,'H2','g']]},
+ tags:['Tek yer değiştirme','Redoks','Gaz çıkışı'], dh:'ΔH ≈ −154 kJ', dhLevel:-.5,
+ soru:'Çinko kaplı bir metal parçası asitle temas ettiğinde neden gaz kabarcıkları oluşur?',
+ cevap:'Asitteki H⁺ iyonları çinko yüzeyine çarpar. Her çinko atomu iki elektron verip Zn²⁺ iyonu olarak çözeltiye geçer. Elektronları alan iki H⁺ iyonu hidrojen atomlarına dönüşür ve bunlar birleşerek H₂ gazını oluşturur. Gördüğümüz kabarcıklar bu hidrojen gazıdır. Klorür iyonları (Cl⁻) değişmeden çözeltide kalır.',
+ sim:{pair:['Zn','HCl'], primary:'Zn', ea:1.3, T:350, boost:1.4},
+ mek:['HCl suda H⁺ ve Cl⁻ iyonlarına ayrışmıştır; H⁺ iyonları çinko yüzeyine çarpar.',
+      'Hidrojen ucu yüzeye dönük, yeterli enerjili çarpışmada çinko atomu elektronlarını verir: Zn → Zn²⁺ + 2e⁻.',
+      'İki H⁺ iyonu bu iki elektronu alır ve hidrojen atomları birleşir: 2H⁺ + 2e⁻ → H₂.',
+      'H₂ gazı kabarcık hâlinde yüzeyden ayrılır, Zn²⁺ ve Cl⁻ iyonları çözeltide kalır.'],
+ kirilan:['H–Cl bağı (suda zaten iyonlarına ayrışmıştır)','Zn–Zn metalik bağları'], olusan:['H–H kovalent bağı','Suda çözünmüş Zn²⁺ ve Cl⁻ iyonları'],
+ gunluk:['Galvanizli kova, boru ve tel çitlerin (çinko kaplı demir) asit yağmurunda aşınması','Laboratuvarda hidrojen gazı elde etme deneyi','Lehim işlerinde yüzey temizleyici olarak kullanılan çinko klorür','Çinko-karbon pillerde çinkonun kap malzemesi olarak tükenmesi'],
+ fayda:['Laboratuvarda kolayca ve güvenli miktarlarda hidrojen gazı elde edilir.','Oluşan ZnCl₂ lehimde yüzey temizleyici ve ahşap koruyucu olarak kullanılır.','Metallerin aktiflik sırasını gözle görülür biçimde gösterir.'],
+ zarar:['H₂ gazı yanıcıdır; kapalı ortamda birikirse patlama riski vardır.','Galvanizli kaplarda limon, sirke gibi asitli yiyecekler bekletilirse çinko yiyeceğe geçer; fazlası bulantı ve kusmaya yol açar.','Derişik HCl cildi yakar, buharı solunum yollarını tahriş eder.'],
+ onem:'Bu tepkime, aktif metallerin asitlerden hidrojen açığa çıkardığını gösteren temel örnektir. Galvaniz kaplamanın neden asitli ortamda ömrünün kısaldığını da açıklar.'},
+
+{id:'demir', no:4, kisa:'Çivi ve göztaşı', title:'Demir çivi bakır(II) sülfat çözeltisinde',
+ eq:{r:[[1,'Fe','k'],[1,'CuSO4','suda']], p:[[1,'FeSO4','suda'],[1,'Cu','k']]},
+ tags:['Tek yer değiştirme','Redoks','Aktiflik sırası'], dh:'ΔH ≈ −154 kJ', dhLevel:-.5,
+ soru:'Demir bir çivi bakır(II) sülfat çözeltisine bırakıldığında çivinin yüzeyinde bakır birikmesi nasıl açıklanabilir?',
+ cevap:'Demir, bakırdan daha aktif bir metaldir; elektronlarını daha kolay verir. Çivi yüzeyindeki Fe atomları çözeltideki Cu²⁺ iyonlarıyla çarpışınca her Fe atomu 2 elektronunu Cu²⁺ iyonuna verir. Fe²⁺ iyonu çözeltiye geçer, Cu²⁺ ise metalik bakır atomuna dönüşür ve çivinin üzerinde kırmızımsı bir tabaka oluşturur. Mavi çözelti zamanla açık yeşile döner. Sülfat iyonu (SO₄²⁻) değişmeden kalır, yani seyirci iyondur.',
+ sim:{pair:['Fe','CuSO4'], primary:'Fe', ea:1.3, T:350, boost:1.4},
+ mek:['Çözeltideki Cu²⁺ iyonları hareket ederek çivinin yüzeyindeki demir atomlarına çarpar.',
+      'Yeterli enerjili çarpışmada bir Fe atomu 2 elektronunu Cu²⁺ iyonuna aktarır.',
+      'Fe²⁺ iyonu çözeltiye geçer ve SO₄²⁻ iyonu artık onunla birlikte bulunur.',
+      'Elektron alan bakır atomları çivinin yüzeyinde birikerek metalik bakır tabakasını oluşturur.'],
+ kirilan:['Fe–Fe metalik bağları','Cu²⁺ iyonunun su molekülleriyle olan etkileşimi'], olusan:['Cu–Cu metalik bağları (çivi yüzeyinde)','Fe²⁺ iyonunun su molekülleriyle etkileşimi'],
+ gunluk:['Bağ ve bahçelerde mantar ilacı olarak kullanılan göztaşı (bakır sülfat)','Maden atık sularından hurda demirle bakır kazanılması (sementasyon)','Bakır iyonu içeren sularla temas eden demir tesisatın hızlı aşınması','Okul laboratuvarındaki "çivinin bakırla kaplanması" deneyi'],
+ fayda:['Maden sularından ve atık çözeltilerden ucuz hurda demirle değerli bakır geri kazanılır.','Metallerin aktiflik sırası çıplak gözle izlenebilir.','Basit bakır kaplama yöntemlerinin temelini oluşturur.'],
+ zarar:['Bakır sülfat sudaki canlılar için zehirlidir; atıkları lavaboya dökülmemelidir.','Bakır iyonu taşıyan sularla temas eden demir borular kısa sürede delinebilir.','Göztaşı yutulursa zehirlenmeye yol açar, göz ve cildi tahriş eder.'],
+ onem:'Hangi metalin hangisini çözeltisinden çıkarabileceğini aktiflik sırası belirler. Bu bilgi pil yapımında, korozyondan korunmada ve metal geri kazanımında kullanılır.'},
+
+{id:'anot', no:5, kisa:'Kurban anot', title:'Gemiyi koruyan çinko parçaları',
+ eq:{r:[[1,'Zn','k']], p:[[1,'Zn2','suda'],[2,'el','']]},
+ simEq:{r:[[2,'Zn','k'],[1,'O2','suda'],[2,'H2O','s']], p:[[2,'Zn2','suda'],[4,'OH','suda']]},
+ tags:['Yükseltgenme yarı tepkimesi','Katodik koruma'], dh:'Kendiliğinden yürür (ekzotermik)', dhLevel:-.6,
+ soru:'Çinko parçalarının zamanla küçülmesine rağmen geminin çelik gövdesinin korunmasını atom ve elektron düzeyinde modelleyiniz.',
+ cevap:'Çinko, demirden daha aktif olduğu için elektronlarını demirden önce verir. Gövdeye bağlanan çinko parçası yükseltgenir (Zn → Zn²⁺ + 2e⁻) ve Zn²⁺ iyonları deniz suyuna geçer; parça bu yüzden zamanla küçülür. Açığa çıkan elektronlar metal gövde üzerinden akar ve çeliğin yüzeyinde suda çözünmüş oksijene verilir (O₂ + 2H₂O + 4e⁻ → 4OH⁻). Çelik elektron vermek zorunda kalmadığı için paslanmaz. Çinko kendini "kurban" eder.',
+ simNote:'Gerçekte çinko ile oksijen doğrudan çarpışmaz: elektronlar metal gövde üzerinden akar. Simülasyon iki yarı tepkimenin toplamını gösterir: 2Zn + O₂ + 2H₂O → 2Zn²⁺ + 4OH⁻.',
+ sim:{pair:['Zn','O2'], primary:'O2', ea:1.3, T:300, boost:1.2},
+ mek:['Çinko parçası çelik gövdeye elektriksel olarak bağlanır ve ikisi aynı deniz suyunun içindedir.',
+      'Çinko atomları, demir atomlarından daha kolay elektron verir: Zn → Zn²⁺ + 2e⁻ (yükseltgenme).',
+      'Zn²⁺ iyonları deniz suyuna geçer; elektronlar metal gövde boyunca çelik yüzeye akar.',
+      'Çelik yüzeyde suda çözünmüş O₂ bu elektronları alır: O₂ + 2H₂O + 4e⁻ → 4OH⁻ (indirgenme). Demir atomları elektron kaybetmediği için paslanmaz.'],
+ kirilan:['Zn–Zn metalik bağları (anot küçülür)','O=O bağı (çelik yüzeyde)'], olusan:['Suda çözünmüş Zn²⁺ iyonları','O–H bağları (OH⁻ iyonlarında)'],
+ gunluk:['Gemi gövdeleri, pervaneler ve dümenler','İskele ayakları, petrol platformları ve deniz fenerleri','Toprağa gömülü doğal gaz ve petrol boru hatları','Evlerdeki termosifon ve şofbenlerin içindeki magnezyum anot çubuğu'],
+ fayda:['Gövde boyası çizilse bile çelik yıllarca korunur.','Ucuz ve kolay değişen bir parça çok pahalı bir yapıyı korur.','Boru hatlarında ve su ısıtıcılarında delinme ve sızıntı riskini azaltır.'],
+ zarar:['Çözünen çinko iyonları ve anottaki safsızlıklar (ör. kadmiyum) liman sularında birikebilir.','Anot bittiğinde fark edilmezse gövde hızla korozyona uğrar; düzenli kontrol gerekir.','Sürekli yenilenen anotlar maden ve enerji tüketimi demektir.'],
+ onem:'Daha aktif bir metali "feda ederek" daha değerli metali korumak, elektrokimyanın en yaygın mühendislik uygulamalarından biridir.'},
+
+{id:'solunum', no:6, kisa:'Hücresel solunum', title:'Koşarken kaslarında',
+ eq:{r:[[1,'glc','suda'],[6,'O2','g']], p:[[6,'CO2','g'],[6,'H2O','s']], extra:'enerji'},
+ tags:['Yanma benzeri oksitlenme','Enzimle yürür','Ekzotermik'], dh:'ΔH ≈ −2803 kJ (1 mol glikoz)', dhLevel:-.85,
+ soru:'Koşarken kas hücrelerinizde gerçekleşen kimyasal değişimi atom düzeyinde modelleyiniz.',
+ cevap:'Koşarken kaslar daha çok enerjiye ihtiyaç duyar. Kas hücrelerinin mitokondrilerinde glikoz, oksijenle onlarca enzim basamağında parçalanır. Glikozdaki 6 C atomu 6 CO₂ molekülüne, 12 H atomu 6 H₂O molekülüne geçer; oksijen atomları her iki ürüne dağılır. Açığa çıkan enerjinin bir kısmı ATP\'de depolanır, kalanı ısı olarak vücudu ısıtır.',
+ simNote:'Hücrede bu tepkime tek bir çarpışmayla değil, enzimlerin yönettiği onlarca küçük basamakla gerçekleşir. Simülasyon net sonucu gösterir.',
+ sim:{pair:['glc','O2'], primary:'glc', ea:1.4, T:310, boost:3},
+ mek:['Glikoz hücre içinde ikiye bölünür (glikoliz) ve parçalar mitokondriye taşınır.',
+      'Karbon atomları basamak basamak oksijenle birleşip CO₂ olarak ayrılır (Krebs döngüsü).',
+      'Glikozdan koparılan hidrojenlerin elektronları zincir boyunca taşınır ve sonunda O₂ molekülüne verilir.',
+      'Elektron alan oksijen, hidrojen iyonlarıyla birleşip suyu oluşturur; bu sırada ATP üretilir.'],
+ kirilan:['5 C–C, 7 C–H, 7 C–O, 5 O–H bağı (glikozda)','6 O=O bağı'], olusan:['12 C=O bağı (6 CO₂)','12 O–H bağı (6 H₂O)'],
+ gunluk:['Koşarken hızlanan nefes ve kalp atışı','Egzersizde vücudun ısınması ve terleme','Soğuk havada nefesimizle çıkan su buharı','Açken veya uzun süre yemek yemeyince hissedilen yorgunluk'],
+ fayda:['Hücrelerin kullandığı ATP\'nin büyük kısmı bu yolla üretilir.','Açığa çıkan ısı vücut sıcaklığını yaklaşık 37 °C\'de tutmaya yardım eder.','Ürün olan CO₂ bitkilerin fotosentezinde hammadde olur; karbon döngüsü böyle tamamlanır.'],
+ zarar:['Oksijen yetmezse kaslar oksijensiz yola (laktik asit fermantasyonu) geçer.','Yan ürün olarak oluşan serbest radikaller hücre zarına ve DNA\'ya zarar verebilir.','Kapalı ve havasız ortamlarda solunumla biriken CO₂ baş ağrısı ve dikkat dağınıklığı yapar.'],
+ onem:'Hücresel solunum, besinlerdeki kimyasal enerjinin canlıların kullanabileceği enerjiye dönüştüğü temel tepkimedir. Fotosentezin tersidir.'},
+
+{id:'oktan', no:7, kisa:'Benzinin yanması', title:'Motorda benzin yanarken',
+ eq:{r:[[2,'oct','s'],[25,'O2','g']], p:[[16,'CO2','g'],[18,'H2O','g']]},
+ tags:['Yanma','Ekzotermik','Kütlenin korunumu'], dh:'ΔH ≈ −10 940 kJ (2 mol oktan)', dhLevel:-.9,
+ soru:'Oktanın oksijenle yanması sırasında atomların nasıl yeniden düzenlendiğini gösteriniz ve atomların korunduğunu kanıtlayınız.',
+ cevap:'Buji kıvılcımı bazı oktan ve oksijen moleküllerine aktivasyon enerjisini aşacak kadar enerji verir. Tepkime bir kez başlayınca açığa çıkan ısı çevredeki moleküllerin de tepkimeye girmesini sağlar. C–C, C–H ve O=O bağları kırılır; C=O ve O–H bağları oluşur. Atomlar yok olmaz, yalnızca yeniden düzenlenir: tepkimenin iki tarafında da 16 C, 36 H ve 50 O atomu vardır (25 O₂ = 50 O; 16 CO₂ içinde 32 O + 18 H₂O içinde 18 O).',
+ simNote:'Simülasyonda başlangıç sıcaklığı tepkime için yetersizdir. "Kıvılcım çak" düğmesi bujinin yaptığını yapar; açığa çıkan ısının tepkimeyi nasıl yaydığını izleyin.',
+ sim:{pair:['oct','O2'], primary:'oct', ea:7, T:300, boost:40, spark:true, tau:6, k:2},
+ mek:['Buji kıvılcımı yakınındaki moleküllere büyük kinetik enerji kazandırır.',
+      'Yeterli enerjiyle çarpışan oktan ve O₂ moleküllerinde C–H, C–C ve O=O bağları kırılır.',
+      'Serbest kalan atomlar yeniden düzenlenir: karbon oksijenle CO₂, hidrojen oksijenle H₂O oluşturur.',
+      'Açığa çıkan ısı yeni çarpışmalara enerji verir; alev cephesi silindir boyunca ilerler ve pistonu iter.'],
+ kirilan:['14 C–C bağı','36 C–H bağı','25 O=O bağı'], olusan:['32 C=O bağı (16 CO₂)','36 O–H bağı (18 H₂O)'],
+ gunluk:['Otomobil, motosiklet ve jeneratör motorları','Benzin istasyonundaki "95 oktan" ifadesi (oktan sayısı)','Egzozdan çıkan su buharı ve soğuk havada egzozdan damlayan su','Çim biçme makineleri ve teknelerin dıştan takma motorları'],
+ fayda:['Benzinin enerji yoğunluğu çok yüksektir; az yakıtla uzun yol gidilir.','Sıvı olduğu için kolayca taşınır, depolanır ve hızlıca doldurulur.','Ulaşım, tarım ve acil durum jeneratörleri bu enerjiye dayanır.'],
+ zarar:['Oluşan CO₂ sera gazıdır ve iklim değişikliğine katkı yapar.','Oksijen yetersizse eksik yanma olur: zehirli karbon monoksit (CO) ve is oluşur.','Motordaki yüksek sıcaklıkta havadaki azot da yanar; oluşan azot oksitler asit yağmuru ve hava kirliliği yapar. Katalitik konvertör bu gazları azaltır.'],
+ onem:'Kütlenin korunumu yasası (Lavoisier) bu tepkimede açıkça görülür: tepkimeye giren ve çıkan atomların türü ve sayısı aynıdır, yalnızca bağlar değişir.'},
+
+{id:'aspirin', no:8, kisa:'Aspirinin hidrolizi', title:'Aspirin vücutta parçalanırken',
+ eq:{r:[[1,'asp','k'],[1,'H2O','s']], p:[[1,'sal','suda'],[1,'ace','suda']]},
+ tags:['Hidroliz','Ester bağının kırılması'], dh:'Isı değişimi küçüktür', dhLevel:-.12,
+ soru:'Aspirinin su ile hidrolizini dikkate alarak, büyük bir aspirin molekülünün daha küçük moleküllere dönüşmesini atom düzeyinde modelleyiniz.',
+ cevap:'Aspirin bir esterdir. Su molekülünün oksijen atomu, aspirindeki ester grubunun karbon atomuna (C=O) doğru yönde çarptığında ester bağı (C–O) kırılır. Suyun –OH parçası asetil grubuna, –H parçası halkaya bağlı oksijene geçer. Böylece büyük molekül salisilik asit ve asetik asit (sirkedeki asit) olmak üzere iki küçük moleküle ayrılır. Vücutta bu işlemi esteraz enzimleri hızlandırır.',
+ sim:{pair:['asp','H2O'], primary:'asp', ea:1.0, T:310, boost:.6},
+ mek:['Su molekülü oksijen ucu önde olacak şekilde aspirinin ester karbonuna (C=O) yaklaşır.',
+      'Doğru yönelim ve yeterli enerjiyle suyun oksijeni bu karbona bağlanır.',
+      'Ester C–O bağı kırılır; suyun hidrojeni halkaya bağlı oksijene geçer.',
+      'Sonuçta salisilik asit ve asetik asit molekülleri ayrı ayrı oluşur.'],
+ kirilan:['Ester C–O bağı','Su molekülündeki bir O–H bağı'], olusan:['Asetik asitte yeni C–O(H) bağı','Salisilik asitte yeni O–H bağı'],
+ gunluk:['Eski veya nemli yerde kalmış aspirin şişesinin sirke gibi kokması','İlaç kutularındaki "serin ve kuru yerde saklayınız" uyarısı','Salisilik asit içeren sivilce ve nasır ürünleri','Söğüt kabuğundaki salisin: aspirinin doğadaki atası'],
+ fayda:['Oluşan salisilat ağrı, ateş ve iltihabı azaltır.','Düşük doz aspirin, hekim önerisiyle kalp krizi ve inme riskini azaltmak için kullanılır.','Salisilik asit cilt bakımında ölü deriyi soymak için kullanılır.'],
+ zarar:['Mide zarını tahriş eder; ülser ve kanama riskini artırır.','Çocuk ve gençlerde viral hastalık sırasında Reye sendromu riski nedeniyle hekime danışmadan kullanılmamalıdır.','Nemle bozulmuş tabletlerin etkisi azalır ve mideyi daha çok tahriş eder.'],
+ onem:'Hidroliz, büyük moleküllerin su ile küçük parçalara ayrılmasıdır. Sindirimde proteinlerin, yağların ve karbonhidratların parçalanması da aynı tür tepkimelerdir.'},
+
+{id:'laktik', no:9, kisa:'Laktik asit fermantasyonu', title:'Oksijen yetmeyince kaslar',
+ eq:{r:[[1,'glc','suda']], p:[[2,'lac','suda']]},
+ tags:['Fermantasyon','Enzimle yürür','Oksijensiz'], dh:'ΔH ≈ −115 kJ (yaklaşık)', dhLevel:-.35,
+ soru:'Glikozun laktik aside dönüşümünü atom düzeyinde modelleyerek atomların nasıl yeniden düzenlendiğini gösteriniz.',
+ cevap:'Oksijen yetersiz kaldığında kas hücreleri glikozu oksijensiz yoldan parçalar. Glikoz önce iki pirüvata ayrılır, sonra pirüvat laktat dehidrogenaz enzimiyle laktik aside dönüşür. Glikozdaki 6 C, 12 H ve 6 O atomu iki laktik asit molekülüne bölünür. Dışarıdan atom eklenmez, atom da kaybolmaz. Bu yol çok hızlıdır ama glikoz başına yalnızca 2 ATP verir; oksijenli solunumda bu sayı yaklaşık 30\'dur.',
+ simNote:'Bu tepkime tek bir maddeyle başlar, bu yüzden glikozun çarpıştığı şey bir enzimdir. Enzim tepkimede harcanmaz ve aktivasyon enerjisini düşürür.',
+ sim:{pair:['glc','ENZ'], primary:'glc', ea:2.4, T:310, boost:1.2, enzyme:true},
+ mek:['Glikoz molekülü enzimin aktif bölgesine uygun yönelimle yerleşir.',
+      'Enzimler glikozu basamak basamak ikiye böler: 1 glikoz → 2 pirüvat (glikoliz).',
+      'Laktat dehidrogenaz enzimi her pirüvata hidrojen ekler; pirüvat laktik aside dönüşür.',
+      'Ürünler enzimden ayrılır; enzim değişmeden yeni bir glikoz molekülünü bekler.'],
+ kirilan:['Glikozun karbon zincirinin ortasındaki C–C bağı','Halkayı oluşturan C–O bağı ve bazı C–H, O–H bağları'], olusan:['Karboksil gruplarında (–COOH) C=O ve O–H bağları','Yeni C–H bağları (metil grupları)'],
+ gunluk:['Yoğurt mayalama: bakteriler sütteki şekeri laktik aside çevirir','Turşu, ekşi maya ekmeği ve kefirdeki ekşi tat','Kısa ve çok hızlı koşularda kaslarda hissedilen yanma','Şekerli yiyeceklerden sonra ağızdaki bakterilerin asit üretmesi'],
+ fayda:['Oksijen yokken bile hücre çok hızlı enerji üretebilir.','Yoğurt, peynir ve turşu üretiminde kullanılır; asitli ortam zararlı mikropları engelleyerek besini korur.','Laktik asitten mısır nişastası kaynaklı biyoplastik (PLA) üretilir.'],
+ zarar:['Kas hücrelerinde H⁺ birikimi ortamı asitleştirir ve yorgunluğa katkı yapar.','Ağızdaki bakterilerin ürettiği laktik asit diş minesini aşındırarak çürüğe yol açar.','Not: Ertesi gün hissedilen kas ağrısı laktik asitten değil, kas liflerindeki küçük hasarlardan kaynaklanır; laktat birkaç saat içinde temizlenir.'],
+ onem:'Fermantasyon, oksijen olmadan enerji üretmenin yoludur. Hem vücudumuzda hem de gıda endüstrisinde yaygın olarak görülür.'},
+
+{id:'ure', no:10, kisa:'Üre oluşumu', title:'Karaciğerde üre oluşurken',
+ eq:{r:[[2,'NH3','g'],[1,'CO2','g']], p:[[1,'ure','suda'],[1,'H2O','s']]},
+ tags:['Birleşme (yoğuşma)','Su açığa çıkar'], dh:'ΔH ≈ −134 kJ (katı üre ve sıvı su için)', dhLevel:-.4,
+ soru:'Karaciğerde üre oluşumuyla ilişkilendirilen kimyasal dönüşümde atomların nasıl yeniden düzenlendiğini tanecik modeliyle gösteriniz.',
+ cevap:'Proteinler parçalanınca zehirli amonyak (NH₃) oluşur. Karaciğer amonyağı CO₂ ile birleştirerek çok daha az zehirli olan üreye dönüştürür. Amonyağın azot atomu CO₂\'nin karbon atomuna bağlanır. CO₂\'deki oksijen atomlarından biri, amonyaktan gelen iki hidrojenle birlikte su molekülü olarak ayrılır. Vücutta bu dönüşüm, enzimlerin ve ATP\'nin kullanıldığı çok basamaklı "üre döngüsü" ile gerçekleşir; denklem sürecin net sonucunu gösterir.',
+ simNote:'Vücutta bu dönüşüm üre döngüsü adı verilen çok basamaklı bir yolla olur. Sanayide ise aynı denklem yüksek basınç ve sıcaklıkta gübre üretmek için kullanılır.',
+ sim:{pair:['NH3','CO2'], primary:'CO2', ea:1.4, T:310, boost:1.2},
+ mek:['Amonyak molekülü azot ucu önde olacak şekilde CO₂\'nin karbon atomuna çarpar.',
+      'Azotun ortaklanmamış elektron çifti karbonla yeni bir C–N bağı kurar; C=O bağlarından biri tek bağa iner.',
+      'İkinci amonyak molekülü de aynı karbona bağlanır.',
+      'Karbona bağlı bir –OH grubu ve azottan gelen bir H atomu su molekülü olarak ayrılır; geriye üre kalır.'],
+ kirilan:['CO₂\'deki C=O çift bağlarından biri','2 N–H bağı'], olusan:['2 C–N bağı','Su molekülündeki 2 O–H bağı'],
+ gunluk:['Böbreklerin üreyi kandan süzerek idrarla atması','Tarlalarda kullanılan üre gübresi','Dizel araçlarda kullanılan AdBlue (üre çözeltisi)','Kuru cilt için satılan üreli kremler; kan tahlilindeki "üre" değeri'],
+ fayda:['Zehirli amonyak güvenli biçimde vücuttan atılır.','Üre dünyada en çok kullanılan azotlu gübredir; tarımsal verimi artırır.','AdBlue egzozdaki azot oksitleri zararsız azot ve suya çevirir; üre-formaldehit reçineleri sunta yapıştırıcısıdır.'],
+ zarar:['Böbrek yetmezliğinde üre kanda birikir (üremi), yorgunluk ve bulantı yapar.','Fazla kullanılan gübre yağmurla göl ve denizlere taşınır, alg patlamasına (ötrofikasyon) yol açar.','Sanayide üre üretimi çok enerji ister ve fosil yakıta bağlıdır.'],
+ onem:'Üre, laboratuvarda sentezlenen ilk organik bileşik olarak (Wöhler, 1828) kimya tarihinde de önemlidir: canlıların ürettiği maddelerin de sıradan kimyasal tepkimelerle oluşabildiğini göstermiştir.'},
+];
+
+/* ---------- Mini SMILES parser ---------- */
+function parseSmiles(s){
+  const atoms=[], bonds=[], ringClosures=[]; let prev=null, order=1; const stack=[], rings={};
+  let i=0; const organic=['Cl','Br','B','C','N','O','P','S','F','I'];
+  while(i<s.length){
+    const ch=s[i];
+    if(ch==='('){stack.push(prev);i++;continue}
+    if(ch===')'){prev=stack.pop();i++;continue}
+    if(ch==='='){order=2;i++;continue}
+    if(ch==='#'){order=3;i++;continue}
+    if(ch==='~'){order=0;i++;continue}
+    if(ch==='-'){order=1;i++;continue}
+    if(ch==='.'){prev=null;i++;continue}
+    if(/\d/.test(ch)){
+      if(rings[ch]){bonds.push({a:rings[ch].a,b:prev,o:Math.max(order,rings[ch].o)});ringClosures.push([rings[ch].a,prev]);delete rings[ch]}
+      else rings[ch]={a:prev,o:order};
+      order=1;i++;continue}
+    let atom;
+    if(ch==='['){
+      const j=s.indexOf(']',i); const t=s.slice(i+1,j);
+      const m=t.match(/^([A-Z][a-z]?|e)(H\d?)?([+-]\d?)?$/);
+      const h=m[2]?(m[2].length>1?+m[2].slice(1):1):0;
+      let c=0; if(m[3]){c=(m[3].length>1?+m[3].slice(1):1)*(m[3][0]==='-'?-1:1)}
+      atom={el:m[1],hx:h,charge:c,br:true}; i=j+1;
+    } else {
+      const el=organic.find(o=>s.startsWith(o,i)); atom={el,charge:0,br:false}; i+=el.length;
+    }
+    atoms.push(atom); const idx=atoms.length-1;
+    if(prev!==null) bonds.push({a:prev,b:idx,o:order});
+    order=1; prev=idx;
+  }
+  const val={C:4,N:3,O:2,S:2,Cl:1,P:3,F:1,Br:1,I:1,B:3};
+  const heavy=atoms.length;
+  for(let k=0;k<heavy;k++){
+    const a=atoms[k]; let h;
+    if(a.br) h=a.hx; else {const used=bonds.filter(b=>b.a===k||b.b===k).reduce((s,b)=>s+b.o,0); h=Math.max(0,val[a.el]-used)}
+    for(let q=0;q<h;q++){atoms.push({el:'H',charge:0}); bonds.push({a:k,b:atoms.length-1,o:1})}
+  }
+  return {atoms,bonds,ringClosures};
+}
+
+/* ---------- 2D layout (force based, deterministic) ---------- */
+function layoutMol(mol){
+  const N=mol.atoms.length, A=mol.atoms;
+  const adj=Array.from({length:N},()=>[]);
+  mol.bonds.forEach(b=>{adj[b.a].push(b.b);adj[b.b].push(b.a)});
+  const bl=b=>{const ea=A[b.a].el, eb=A[b.b].el; if(b.o===0) return 1.15; return (ea==='H'||eb==='H')?0.75:1};
+  const blen=new Map(); mol.bonds.forEach(b=>{const L=bl(b); blen.set(b.a+'-'+b.b,L); blen.set(b.b+'-'+b.a,L)});
+  const P=new Array(N);
+  if(N===1){mol.pos=[[0,0]];mol.rad=EL[A[0].el].r;return mol}
+  // rings
+  const rings=[];
+  mol.ringClosures.forEach(([s,t])=>{
+    const prevv=new Array(N).fill(-1); const q=[s]; prevv[s]=s;
+    while(q.length){const u=q.shift(); for(const v of adj[u]){ if(A[v].el==='H')continue; if(u===s&&v===t)continue; if(prevv[v]===-1){prevv[v]=u;q.push(v)} }}
+    const path=[]; let c=t; while(c!==s){path.push(c);c=prevv[c]} path.push(s); rings.push(path);
+  });
+  const inRing=new Set(); rings.forEach(r=>r.forEach(x=>inRing.add(x)));
+  // initial placement: ring as a regular polygon, then BFS outward
+  const placed=new Array(N).fill(false); const q=[]; let flip=1;
+  if(rings.length){
+    const r=rings[0], n=r.length, R=1/(2*Math.sin(Math.PI/n));
+    r.forEach((a,k)=>{const t=k*2*Math.PI/n; P[a]=[R*Math.cos(t),R*Math.sin(t)]; placed[a]=true});
+    r.forEach((a,k)=>q.push([a,null,k*2*Math.PI/n,true]));
+  } else {P[0]=[0,0]; placed[0]=true; q.push([0,null,0,false])}
+  while(q.length){
+    const [u,par,ringBase,isRing]=q.shift();
+    const kids=adj[u].filter(v=>!placed[v]).sort((x,y)=>(A[x].el==='H')-(A[y].el==='H'));
+    let angs;
+    if(isRing){const b=ringBase; angs=kids.length===1?[b]:kids.length===2?[b-.65,b+.65]:kids.map((_,k)=>b+(k-1)*.8)}
+    else if(par===null){angs=kids.map((_,k)=>k*2*Math.PI/kids.length)}
+    else {
+      const base=Math.atan2(P[u][1]-P[par][1],P[u][0]-P[par][0]);
+      if(kids.length===1){angs=[base+flip*Math.PI/3]; flip=-flip}
+      else if(kids.length===2){angs=[base-Math.PI/3,base+Math.PI/3]}
+      else {angs=[base,base-Math.PI/2,base+Math.PI/2]}
+    }
+    kids.forEach((v,k)=>{const L=blen.get(u+'-'+v); P[v]=[P[u][0]+L*Math.cos(angs[k]),P[u][1]+L*Math.sin(angs[k])]; placed[v]=true; q.push([v,u,0,false])});
+  }
+  // springs
+  const springs=[]; // [i,j,len,k]
+  mol.bonds.forEach(b=>springs.push([b.a,b.b,blen.get(b.a+'-'+b.b),1]));
+  const ringPair=new Set();
+  rings.forEach(r=>{const n=r.length, L=1, R=L/(2*Math.sin(Math.PI/n));
+    for(let a=0;a<n;a++)for(let b=a+1;b<n;b++){const k=Math.min(b-a,n-(b-a)); springs.push([r[a],r[b],2*R*Math.sin(Math.PI*k/n),1.2]); ringPair.add(r[a]+'-'+r[b]); ringPair.add(r[b]+'-'+r[a])}});
+  const metals=['Cu','Ag','Zn','Fe'];
+  for(let c=0;c<N;c++){
+    const nb=adj[c]; const d=nb.length; if(d<2)continue;
+    const ord=v=>{const b=mol.bonds.find(b=>(b.a===c&&b.b===v)||(b.b===c&&b.a===v));return b.o};
+    const sumO=nb.reduce((s,v)=>s+ord(v),0);
+    const addAng=(i,j,deg)=>{const a=blen.get(c+'-'+i), b=blen.get(c+'-'+j); const t=deg*Math.PI/180; springs.push([i,j,Math.sqrt(a*a+b*b-2*a*b*Math.cos(t)),.6])};
+    if(d===2){
+      let deg=120; const e=A[c].el;
+      if(sumO>=4||metals.includes(e)) deg=180; else if(['O','S','N'].includes(e)&&sumO===2) deg=105;
+      addAng(nb[0],nb[1],deg);
+    } else if(d===3){
+      for(let x=0;x<3;x++)for(let y=x+1;y<3;y++){ if(ringPair.has(nb[x]+'-'+nb[y]))continue; addAng(nb[x],nb[y],120)}
+    } else if(d===4 && inRing.has(c)){
+      const subs=nb.filter(v=>!inRing.has(v)); if(subs.length===2) addAng(subs[0],subs[1],80);
+    } else if(d===4 && !inRing.has(c)){
+      const s=[...nb].sort((x,y)=>(A[x].el==='H')-(A[y].el==='H'));
+      // cross: s0 opposite s1 when both heavy; else s0 opposite s3
+      let opp;
+      if(A[s[1]].el!=='H'){opp=[[s[0],s[1]],[s[2],s[3]]]} else {opp=[[s[0],s[3]],[s[1],s[2]]]}
+      const isOpp=(i,j)=>opp.some(p=>(p[0]===i&&p[1]===j)||(p[0]===j&&p[1]===i));
+      for(let x=0;x<4;x++)for(let y=x+1;y<4;y++) addAng(s[x],s[y],isOpp(s[x],s[y])?180:90);
+    }
+  }
+  const linked=new Set(); springs.forEach(([i,j])=>{linked.add(i+'-'+j);linked.add(j+'-'+i)});
+  let step=.12;
+  for(let it=0;it<900;it++){
+    const F=P.map(()=>[0,0]);
+    for(const [i,j,L,k] of springs){
+      const dx=P[j][0]-P[i][0], dy=P[j][1]-P[i][1]; const d=Math.hypot(dx,dy)||1e-6; const f=k*(d-L)/d;
+      F[i][0]+=f*dx;F[i][1]+=f*dy;F[j][0]-=f*dx;F[j][1]-=f*dy;
+    }
+    for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
+      if(linked.has(i+'-'+j))continue;
+      const hi=A[i].el==='H'||A[j].el==='H'; const R=hi?1.1:1.7;
+      const dx=P[j][0]-P[i][0], dy=P[j][1]-P[i][1]; let d=Math.hypot(dx,dy);
+      if(d<1e-4){P[j][0]+=.01*(j%3+1);P[j][1]+=.013*(i%2+1);continue}
+      if(d<R){const f=-.35*(R-d)/d; F[i][0]+=f*dx;F[i][1]+=f*dy;F[j][0]-=f*dx;F[j][1]-=f*dy}
+    }
+    // weak centering keeps ionic fragments together
+    let cx=0,cy=0; P.forEach(p=>{cx+=p[0];cy+=p[1]}); cx/=N;cy/=N;
+    for(let i=0;i<N;i++){F[i][0]-=.002*(P[i][0]-cx);F[i][1]-=.002*(P[i][1]-cy)}
+    for(let i=0;i<N;i++){P[i][0]+=step*F[i][0];P[i][1]+=step*F[i][1]}
+    if(it>500) step*=.995;
+  }
+  // center & PCA rotate
+  let cx=0,cy=0; P.forEach(p=>{cx+=p[0];cy+=p[1]}); cx/=N;cy/=N;
+  let sxx=0,syy=0,sxy=0; P.forEach(p=>{const x=p[0]-cx,y=p[1]-cy;sxx+=x*x;syy+=y*y;sxy+=x*y});
+  const th=.5*Math.atan2(2*sxy,sxx-syy); const c=Math.cos(-th), s=Math.sin(-th);
+  mol.pos=P.map(p=>{const x=p[0]-cx,y=p[1]-cy;return [x*c-y*s,x*s+y*c]});
+  mol.rad=Math.max(...mol.pos.map((p,k)=>Math.hypot(p[0],p[1])+atomR(A[k])));
+  return mol;
+}
+function atomR(a){let r=EL[a.el].r; if(a.charge>0&&a.el!=='e') r*=.8; if(a.charge<0&&a.el!=='e'&&a.el!=='O') r*=1.1; return r}
+
+const MOL={};
+function getMol(key){
+  if(key==='ENZ') return null;
+  if(!MOL[key]){const m=layoutMol(parseSmiles(SP[key].smi)); m.mass=m.atoms.reduce((s,a)=>s+EL[a.el].m,0); m.key=key; MOL[key]=m}
+  return MOL[key];
+}
+
+/* ---------- Colors & drawing ---------- */
+function hexRgb(h){h=h.replace('#','');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]}
+function shade(h,f){const [r,g,b]=hexRgb(h);const t=f<0?0:255,p=Math.abs(f);return `rgb(${Math.round((t-r)*p+r)},${Math.round((t-g)*p+g)},${Math.round((t-b)*p+b)})`}
+function lum(h){const [r,g,b]=hexRgb(h);return (.299*r+.587*g+.114*b)/255}
+let THEME={};
+function readTheme(){const cs=getComputedStyle(document.documentElement);['--bond','--ink','--muted','--sunk','--line','--accent','--flame','--ok','--warn','--surface'].forEach(k=>THEME[k]=cs.getPropertyValue(k).trim())}
+readTheme();
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',readTheme)}catch(e){}
+new MutationObserver(readTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+function drawAtom(ctx,el,x,y,r,charge,alpha,labels){
+  const col=EL[el].c;
+  ctx.globalAlpha=alpha;
+  const g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);
+  g.addColorStop(0,shade(col,.55)); g.addColorStop(.55,col); g.addColorStop(1,shade(col,-.35));
+  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+  ctx.lineWidth=Math.max(.6,r*.07);ctx.strokeStyle='rgba(0,0,0,.28)';ctx.stroke();
+  if(labels&&r>=7&&el!=='H'&&el!=='e'){
+    ctx.fillStyle=lum(col)>.6?'#222':'#fff';ctx.font=`600 ${Math.round(r*.85)}px "IBM Plex Sans",sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(el,x,y+r*.04);
+  }
+  if(charge&&r>=4){
+    const t=(Math.abs(charge)>1?Math.abs(charge):'')+(charge>0?'+':'−');
+    ctx.font=`600 ${Math.max(9,Math.round(r*.62))}px "IBM Plex Mono",monospace`;ctx.textAlign='left';ctx.textBaseline='alphabetic';
+    ctx.fillStyle=THEME['--ink'];ctx.fillText(t,x+r*.72,y-r*.62);
+  }
+  ctx.globalAlpha=1;
+}
+function drawBond(ctx,x1,y1,x2,y2,o,L,alpha){
+  if(o===0||alpha<=0.01)return;
+  ctx.globalAlpha=alpha;ctx.strokeStyle=THEME['--bond'];ctx.lineWidth=Math.max(1.2,L*.1);ctx.lineCap='round';
+  const dx=x2-x1,dy=y2-y1,d=Math.hypot(dx,dy)||1,nx=-dy/d,ny=dx/d;
+  const offs=o===1?[0]:o===2?[-.5,.5]:[-1,0,1]; const sp=L*.13;
+  offs.forEach(k=>{ctx.beginPath();ctx.moveTo(x1+nx*k*sp*2,y1+ny*k*sp*2);ctx.lineTo(x2+nx*k*sp*2,y2+ny*k*sp*2);ctx.stroke()});
+  ctx.globalAlpha=1;
+}
+function drawMol(ctx,m,x,y,ang,L,alpha=1,labels=true){
+  const c=Math.cos(ang),s=Math.sin(ang);
+  const W=m.pos.map(p=>[x+(p[0]*c-p[1]*s)*L,y+(p[0]*s+p[1]*c)*L]);
+  m.bonds.forEach(b=>drawBond(ctx,W[b.a][0],W[b.a][1],W[b.b][0],W[b.b][1],b.o,L,alpha));
+  // draw in order: back to front by y for a bit of depth
+  const idx=m.atoms.map((_,i)=>i).sort((a,b)=>W[a][1]-W[b][1]);
+  idx.forEach(i=>drawAtom(ctx,m.atoms[i].el,W[i][0],W[i][1],atomR(m.atoms[i])*L,m.atoms[i].charge,alpha,labels));
+}
+
+/* ---------- Formatting ---------- */
+function fmtF(f){return f.replace(/([A-Za-z\)])(\d+)/g,'$1<sub>$2</sub>')}
+function fmtSpecies(coef,key,st){
+  const sp=SP[key]; let h=(coef>1?coef:'')+fmtF(sp.f);
+  if(sp.ch) h+=`<sup>${sp.ch}</sup>`;
+  if(st) h+=`<span class="st">(${st})</span>`;
+  return h;
+}
+function fmtEq(eq){
+  const side=a=>a.map(([c,k,st])=>fmtSpecies(c,k,st)).join(' + ');
+  return side(eq.r)+'<span class="arr">→</span>'+side(eq.p)+(eq.extra?' + '+eq.extra:'');
+}
+function plainF(key){const sp=SP[key];return sp.f.replace(/\d/g,d=>'₀₁₂₃₄₅₆₇₈₉'[d])+(sp.ch?(sp.ch==='2+'?'²⁺':'⁻'):'')}
+
+/* ---------- Collision simulation ---------- */
+function makeSim(host,rx,ui){
+  const eqS=rx.simEq||rx.eq;
+  const cv=host.querySelector('canvas'), ctx=cv.getContext('2d');
+  const reac=eqS.r.map(([c,k])=>({k,c})), prod=eqS.p.map(([c,k])=>({k,c}));
+  const S=rx.sim; const enzyme=!!S.enzyme;
+  let W=600,H=360,L=12, mols=[], fx=[], acc={}, stats, running=true, raf=0, slow=false, oriOn=true;
+  let T=S.T, Ea=S.ea; const K=150000;
+  const initial={};
+  function sizes(){
+    const r=cv.parentElement.getBoundingClientRect(); W=Math.max(280,r.width); H=W<560?320:380;
+    const dpr=window.devicePixelRatio||1; cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+    const keys=[...reac,...prod].map(s=>s.k); const maxR=Math.max(...keys.map(k=>getMol(k).rad));
+    L=Math.max(6,Math.min(16,(H*.105)/maxR));
+  }
+  function gauss(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+  function newMol(k,x,y,temp){
+    if(k==='ENZ'){const r=Math.max(...reac.map(s=>getMol(s.k).rad))*L*1.6; return {k,x,y,vx:gauss()*6,vy:gauss()*6,a:0,w:.15,r,m:3000,enz:true}}
+    const m=getMol(k); const sd=Math.sqrt(K*(temp/300)/m.mass);
+    return {k,m:m.mass,mol:m,x,y,vx:gauss()*sd,vy:gauss()*sd,a:Math.random()*6.28,w:(Math.random()-.5)*1.6,r:m.rad*L};
+  }
+  function place(k){
+    for(let t=0;t<200;t++){
+      const tmp=newMol(k,0,0,T); const x=tmp.r+Math.random()*(W-2*tmp.r), y=tmp.r+Math.random()*(H-2*tmp.r);
+      if(mols.every(o=>Math.hypot(o.x-x,o.y-y)>o.r+tmp.r+2)){tmp.x=x;tmp.y=y;return tmp}
+    }
+    const tmp=newMol(k,0,0,T); tmp.x=W/2;tmp.y=H/2;return tmp;
+  }
+  function reset(){
+    sizes(); mols=[]; fx=[]; acc={};
+    stats={tot:0,eff:0,lowE:0,ori:0,t0:performance.now()};
+    const area=reac.reduce((s,r)=>s+r.c*Math.PI*Math.pow(getMol(r.k).rad*L,2),0);
+    const sumC=reac.reduce((s,r)=>s+r.c,0);
+    let k=Math.max(1,Math.round(18/sumC)); k=Math.max(1,Math.min(k,Math.floor(.24*W*H/area)));
+    if(enzyme) k=Math.min(k,7); if(S.k) k=S.k;
+    reac.forEach(r=>{initial[r.k]=r.c*k; for(let i=0;i<r.c*k;i++) mols.push(place(r.k))});
+    if(enzyme){mols.push(place('ENZ'));mols.push(place('ENZ'))}
+    prod.forEach(p=>initial['p_'+p.k]=Math.round(p.c*k*(reac.find(r=>r.k===S.primary)?1:1)));
+    ui.update(); draw();
+  }
+  function count(k){return mols.filter(m=>m.k===k&&!m.dying).length}
+  function siteOK(o,nx,ny){
+    if(o.enz||!o.mol||SP[o.k].site===undefined||o.mol.atoms.length===1)return true;
+    const p=o.mol.pos[SP[o.k].site]; const c=Math.cos(o.a),s=Math.sin(o.a);
+    const vx=p[0]*c-p[1]*s, vy=p[0]*s+p[1]*c; const d=Math.hypot(vx,vy); if(d<.05)return true;
+    return (vx*nx+vy*ny)/d>.5;
+  }
+  function tryReact(A,B,nx,ny,vn){
+    // A,B the colliding pair; returns true if reaction happened
+    const ks=[A.k,B.k]; const pr=S.pair;
+    const match=(ks[0]===pr[0]&&ks[1]===pr[1])||(ks[0]===pr[1]&&ks[1]===pr[0]); if(!match) return false;
+    stats.tot++;
+    const mu=A.m*B.m/(A.m+B.m); const E=.5*mu*vn*vn/K; // in kT(300K) units
+    const eaEff=enzyme?Ea*.4:Ea;
+    if(E<eaEff){stats.lowE++; fx.push({x:(A.x+B.x)/2,y:(A.y+B.y)/2,t:0,kind:'low'}); return false}
+    if(oriOn&&!(siteOK(A,nx,ny)&&siteOK(B,-nx,-ny))){stats.ori++; fx.push({x:(A.x+B.x)/2,y:(A.y+B.y)/2,t:0,kind:'ori'}); return false}
+    // stoichiometry bookkeeping
+    const prim=reac.find(r=>r.k===S.primary).c;
+    const take={}, nacc={};
+    for(const r of reac){const req=(acc[r.k]||0)+r.c/prim; const n=Math.floor(req+1e-9); nacc[r.k]=req-n; take[r.k]=n}
+    const colliding=[A,B].filter(o=>!o.enz);
+    const extra=[];
+    for(const r of reac){
+      let need=take[r.k]-colliding.filter(o=>o.k===r.k).length;
+      if(need<0) need=0;
+      const pool=mols.filter(o=>o.k===r.k&&!o.dying&&!colliding.includes(o)&&!extra.includes(o)).sort((p,q)=>Math.hypot(p.x-A.x,p.y-A.y)-Math.hypot(q.x-A.x,q.y-A.y));
+      if(pool.length<need){stats.tot--; return false}
+      extra.push(...pool.slice(0,need));
+    }
+    Object.assign(acc,nacc);
+    stats.eff++;
+    const cx=enzyme?(A.enz?B.x:A.x):(A.x+B.x)/2, cy=enzyme?(A.enz?B.y:A.y):(A.y+B.y)/2;
+    [...colliding,...extra].forEach(o=>{o.dying=0;o.tx=cx;o.ty=cy;o.sx=o.x;o.sy=o.y});
+    fx.push({x:cx,y:cy,t:0,kind:'eff'});
+    // products
+    const born=[];
+    for(const p of prod){const req=(acc['p_'+p.k]||0)+p.c/prim; const n=Math.floor(req+1e-9); acc['p_'+p.k]=req-n; for(let i=0;i<n;i++)born.push(p.k)}
+    born.forEach((k,i)=>{
+      const o=newMol(k,cx,cy,T); const ang=(i/born.length)*Math.PI*2+Math.random()*.5;
+      const off=Math.min(30,o.r*1.1+born.length*1.5); o.x=Math.min(W-o.r,Math.max(o.r,cx+Math.cos(ang)*off)); o.y=Math.min(H-o.r,Math.max(o.r,cy+Math.sin(ang)*off));
+      const boost=Math.sqrt(2*S.boost*K/(o.m*born.length)); o.vx+=Math.cos(ang)*boost; o.vy+=Math.sin(ang)*boost; o.birth=0;
+      mols.push(o);
+    });
+    return true;
+  }
+  function step(dt){
+    // dying animation
+    mols.forEach(o=>{if(o.dying!==undefined){o.dying+=dt/.35; const t=Math.min(1,o.dying); o.x=o.sx+(o.tx-o.sx)*t; o.y=o.sy+(o.ty-o.sy)*t}});
+    mols=mols.filter(o=>o.dying===undefined||o.dying<1);
+    const live=mols.filter(o=>o.dying===undefined);
+    live.forEach(o=>{o.x+=o.vx*dt;o.y+=o.vy*dt;o.a+=o.w*dt; if(o.birth!==undefined){o.birth+=dt*3; if(o.birth>=1)delete o.birth}
+      if(o.x<o.r){o.x=o.r;o.vx=Math.abs(o.vx)} if(o.x>W-o.r){o.x=W-o.r;o.vx=-Math.abs(o.vx)}
+      if(o.y<o.r){o.y=o.r;o.vy=Math.abs(o.vy)} if(o.y>H-o.r){o.y=H-o.r;o.vy=-Math.abs(o.vy)}});
+    for(let i=0;i<live.length;i++){const A=live[i]; if(A.dying!==undefined)continue;
+      for(let j=i+1;j<live.length;j++){const B=live[j]; if(B.dying!==undefined||A.dying!==undefined)continue;
+        const dx=B.x-A.x,dy=B.y-A.y,d=Math.hypot(dx,dy),R=A.r+B.r;
+        if(d<R&&d>0){
+          const nx=dx/d,ny=dy/d; const vn=(B.vx-A.vx)*nx+(B.vy-A.vy)*ny;
+          if(vn<0){
+            if(tryReact(A,B,nx,ny,vn)) continue;
+            const imp=2*vn/(A.m+B.m); A.vx+=imp*B.m*nx;A.vy+=imp*B.m*ny;B.vx-=imp*A.m*nx;B.vy-=imp*A.m*ny;
+          }
+          const ov=(R-d)/2; A.x-=nx*ov*(B.m/(A.m+B.m))*2; A.y-=ny*ov*(B.m/(A.m+B.m))*2; B.x+=nx*ov*(A.m/(A.m+B.m))*2; B.y+=ny*ov*(A.m/(A.m+B.m))*2;
+        }}}
+    // thermostat
+    const mm=live.filter(o=>!o.enz); if(mm.length){
+      const ke=mm.reduce((s,o)=>s+.5*o.m*(o.vx*o.vx+o.vy*o.vy),0)/mm.length; const target=K*(T/300);
+      const tau=S.tau||1.6; const lam=Math.sqrt(Math.max(.2,1+(dt/tau)*(target/Math.max(ke,1)-1)));
+      mm.forEach(o=>{o.vx*=lam;o.vy*=lam}); curT=300*ke/K;
+    }
+    fx.forEach(f=>f.t+=dt); fx=fx.filter(f=>f.t<(f.kind==='eff'?.9:.45));
+  }
+  let curT=T;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    mols.forEach(o=>{
+      if(o.enz){ctx.save();ctx.translate(o.x,o.y);ctx.rotate(o.a);ctx.beginPath();
+        for(let i=0;i<=40;i++){const t=i/40*Math.PI*2;const rr=o.r*(1+.08*Math.sin(3*t)+.05*Math.cos(5*t)); if(i===0&&false)continue; const px=Math.cos(t)*rr,py=Math.sin(t)*rr; i?ctx.lineTo(px,py):ctx.moveTo(px,py)}
+        ctx.closePath();ctx.fillStyle='rgba(22,136,90,.18)';ctx.fill();ctx.strokeStyle=THEME['--ok'];ctx.lineWidth=2;ctx.stroke();
+        // active site notch
+        ctx.beginPath();ctx.arc(o.r*.95,0,o.r*.28,0,Math.PI*2);ctx.fillStyle=THEME['--sunk'];ctx.fill();
+        ctx.restore();ctx.fillStyle=THEME['--ok'];ctx.font='600 12px "IBM Plex Sans",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Enzim',o.x,o.y);return}
+      let al=1,sc=1; if(o.dying!==undefined){al=1-o.dying;sc=1-.4*o.dying} if(o.birth!==undefined){al=o.birth}
+      drawMol(ctx,o.mol,o.x,o.y,o.a,L*sc,al,true);
+    });
+    fx.forEach(f=>{
+      const p=f.kind==='eff'?f.t/.9:f.t/.45; const col=f.kind==='eff'?THEME['--flame']:f.kind==='ori'?THEME['--warn']:THEME['--muted'];
+      ctx.globalAlpha=1-p; ctx.strokeStyle=col; ctx.lineWidth=f.kind==='eff'?3:1.5;
+      ctx.beginPath();ctx.arc(f.x,f.y,(f.kind==='eff'?14:6)+p*(f.kind==='eff'?38:14),0,Math.PI*2);ctx.stroke();
+      if(f.kind==='eff'){ctx.fillStyle=col;ctx.font='600 12px "IBM Plex Sans",sans-serif';ctx.textAlign='center';ctx.fillText('Etkin çarpışma',f.x,f.y-24-p*20)}
+      ctx.globalAlpha=1;
+    });
+    if(sparkFx>0){ctx.globalAlpha=sparkFx;ctx.fillStyle=THEME['--flame'];ctx.beginPath();ctx.arc(sparkX,sparkY,130*(1.2-sparkFx),0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}
+  }
+  let sparkFx=0,sparkX=0,sparkY=0;
+  function spark(){
+    sparkX=W*(.25+Math.random()*.5); sparkY=H*(.3+Math.random()*.4); sparkFx=.6;
+    mols.forEach(o=>{if(o.enz||o.dying!==undefined)return; if(Math.hypot(o.x-sparkX,o.y-sparkY)<130){const f=4;o.vx*=f;o.vy*=f}});
+  }
+  let last=performance.now(), uiT=0;
+  function loop(now){
+    const dtr=Math.min(.05,(now-last)/1000); last=now;
+    if(running){const dt=dtr*(slow?.3:1); const n=3; for(let i=0;i<n;i++)step(dt/n); if(sparkFx>0)sparkFx-=dtr*1.2}
+    draw(); uiT+=dtr; if(uiT>.2){uiT=0;ui.update()}
+    raf=requestAnimationFrame(loop);
+  }
+  reset();
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches; if(reduce){running=false}
+  raf=requestAnimationFrame(loop);
+  let ro=new ResizeObserver(()=>{const w=cv.parentElement.getBoundingClientRect().width; if(Math.abs(w-W)>30) reset()}); ro.observe(cv.parentElement);
+  return {
+    destroy(){cancelAnimationFrame(raf);ro.disconnect()},
+    reset, spark,
+    setT(v){T=v}, setEa(v){Ea=v}, setSlow(v){slow=v}, setOri(v){oriOn=v},
+    toggle(){running=!running;return running}, get running(){return running},
+    get stats(){return stats}, get curT(){return curT},
+    counts(){const o={}; [...reac,...prod].forEach(s=>o[s.k]=count(s.k)); return o},
+    initial, reac, prod, get Ea(){return Ea}, get T(){return T}
+  };
+}
+
+/* ---------- Particle model (morph before → after) ---------- */
+function makeModel(host,rx){
+  const cv=host.querySelector('canvas'),ctx=cv.getContext('2d');
+  const expand=side=>{const out=[];side.forEach(([c,k])=>{for(let i=0;i<c;i++)out.push(k)});return out};
+  const R=expand(rx.eq.r), Pd=expand(rx.eq.p);
+  let W=600,H=300,L=20,start=[],end=[],map=[],t=0,playing=false,raf=0,last=0;
+  function pack(list,Lpx){
+    // shelf packing; returns placements with molecule centre & per-atom positions
+    const gap=Lpx*.9; const items=list.map(k=>{const m=getMol(k);const xs=m.pos.map((p,i)=>[p[0]*Lpx,p[1]*Lpx,atomR(m.atoms[i])*Lpx]);
+      const minx=Math.min(...xs.map(a=>a[0]-a[2])),maxx=Math.max(...xs.map(a=>a[0]+a[2])),miny=Math.min(...xs.map(a=>a[1]-a[2])),maxy=Math.max(...xs.map(a=>a[1]+a[2]));
+      return {k,m,w:maxx-minx,h:maxy-miny,ox:-minx,oy:-miny}});
+    const rows=[];let row={items:[],w:0,h:0};
+    items.forEach(it=>{if(row.items.length&&row.w+gap+it.w>W-24){rows.push(row);row={items:[],w:0,h:0}} row.w+=(row.items.length?gap:0)+it.w; row.h=Math.max(row.h,it.h); row.items.push(it)});
+    rows.push(row);
+    const totalH=rows.reduce((s,r)=>s+r.h,0)+gap*(rows.length-1)+ (rows.length*14);
+    return {rows,totalH,gap};
+  }
+  function build(){
+    const r=cv.parentElement.getBoundingClientRect(); W=Math.max(280,r.width); H=W<560?300:340;
+    let Lpx=Math.min(46,W/14), a, b;
+    for(;Lpx>3;Lpx-=.5){a=pack(R,Lpx);b=pack(Pd,Lpx); if(a.totalH<H-40&&b.totalH<H-40)break}
+    L=Lpx;
+    const dpr=window.devicePixelRatio||1; cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);
+    const lay=(pk)=>{const atoms=[],mols=[];let y=(H-pk.totalH)/2+6;
+      pk.rows.forEach(row=>{let x=(W-row.w)/2; row.items.forEach(it=>{
+        const cx=x+it.ox, cy=y+it.oy+(row.h-it.h)/2; const base=atoms.length;
+        it.m.pos.forEach((p,i)=>atoms.push({el:it.m.atoms[i].el,ch:it.m.atoms[i].charge,x:cx+p[0]*L,y:cy+p[1]*L,mi:mols.length}));
+        mols.push({k:it.k,m:it.m,base,lx:x+it.w/2,ly:y+row.h+11}); x+=it.w+pk.gap});
+        y+=row.h+pk.gap+14});
+      return {atoms,mols}};
+    start=lay(a); end=lay(b);
+    // map product atoms -> reactant atoms (greedy by element & distance)
+    map=new Array(end.atoms.length).fill(-1); const used=new Set();
+    const els=[...new Set(end.atoms.map(x=>x.el))];
+    els.forEach(el=>{const pairs=[];end.atoms.forEach((e,i)=>{if(e.el!==el)return;start.atoms.forEach((s,j)=>{if(s.el===el)pairs.push([Math.hypot(e.x-s.x,e.y-s.y),i,j])})});
+      pairs.sort((p,q)=>p[0]-q[0]); pairs.forEach(([,i,j])=>{if(map[i]===-1&&!used.has(j)){map[i]=j;used.add(j)}})});
+    end.atoms.forEach((e,i)=>{if(map[i]===-1){let best=-1,bd=1e9;start.atoms.forEach((s,j)=>{const d=Math.hypot(e.x-s.x,e.y-s.y);if(d<bd){bd=d;best=j}});e.from=best}});
+  }
+  const ease=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
+  const cl=x=>Math.max(0,Math.min(1,x));
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    const bA=1-cl(t/.28), bB=cl((t-.72)/.28), mv=ease(cl((t-.3)/.4));
+    // reactant bonds
+    if(bA>0) start.mols.forEach(mo=>mo.m.bonds.forEach(b=>{const p=start.atoms[mo.base+b.a],q=start.atoms[mo.base+b.b];drawBond(ctx,p.x,p.y,q.x,q.y,b.o,L,bA)}));
+    if(bB>0) end.mols.forEach(mo=>mo.m.bonds.forEach(b=>{const p=end.atoms[mo.base+b.a],q=end.atoms[mo.base+b.b];drawBond(ctx,p.x,p.y,q.x,q.y,b.o,L,bB)}));
+    // atoms: draw product-indexed atoms (each mapped to a reactant atom)
+    const drawn=new Set();
+    const list=end.atoms.map((e,i)=>{
+      if(map[i]>=0){const s=start.atoms[map[i]];drawn.add(map[i]);return {el:e.el,x:s.x+(e.x-s.x)*mv,y:s.y+(e.y-s.y)*mv,ch:t<.5?s.ch:e.ch,al:1}}
+      const s=start.atoms[e.from];return {el:e.el,x:s.x+(e.x-s.x)*mv,y:s.y+(e.y-s.y)*mv,ch:e.ch,al:cl((t-.3)/.3)}});
+    start.atoms.forEach((s,j)=>{if(!drawn.has(j))list.push({el:s.el,x:s.x,y:s.y,ch:s.ch,al:1-cl(t/.5)})});
+    list.sort((a,b)=>a.y-b.y).forEach(a=>drawAtom(ctx,a.el,a.x,a.y,atomR({el:a.el,charge:a.ch})*L,a.ch,a.al,true));
+    // labels
+    const lab=(mols,al)=>{if(al<=0||mols.length>18)return;ctx.globalAlpha=al;ctx.fillStyle=THEME['--muted'];ctx.font='500 11px "IBM Plex Mono",monospace';ctx.textAlign='center';ctx.textBaseline='alphabetic';
+      mols.forEach(mo=>ctx.fillText(plainF(mo.k),mo.lx,Math.min(H-4,mo.ly)));ctx.globalAlpha=1};
+    lab(start.mols,bA); lab(end.mols,bB);
+    host.querySelector('.stagecap').textContent=t<.12?'1 · Tepkime öncesi: girenler':t<.32?'2 · Çarpışma: eski bağlar kırılıyor':t<.72?'3 · Atomlar yeniden düzenleniyor (hiçbiri kaybolmuyor)':t<.95?'4 · Yeni bağlar oluşuyor':'5 · Tepkime sonrası: ürünler';
+    host.querySelector('input[type=range]').value=Math.round(t*100);
+  }
+  function loop(now){const dt=(now-last)/1000;last=now; if(playing){t+=dt/5; if(t>=1){t=1;playing=false;host.querySelector('.play').textContent='Baştan oynat'}} draw(); if(playing)raf=requestAnimationFrame(loop)}
+  build(); draw();
+  host.querySelector('input[type=range]').addEventListener('input',e=>{playing=false;t=e.target.value/100;host.querySelector('.play').textContent='Oynat';draw()});
+  host.querySelector('.play').addEventListener('click',e=>{if(playing){playing=false;e.target.textContent='Oynat';return} if(t>=1)t=0; playing=true;e.target.textContent='Durdur';last=performance.now();raf=requestAnimationFrame(loop)});
+  const ro=new ResizeObserver(()=>{const w=cv.parentElement.getBoundingClientRect().width;if(Math.abs(w-W)>30){build();draw()}});ro.observe(cv.parentElement);
+  return {destroy(){cancelAnimationFrame(raf);ro.disconnect()}, redraw:draw};
+}
+
+/* ---------- Counting helpers ---------- */
+function tally(side){
+  const el={}; let charge=0, mass=0; const bonds={1:0,2:0,3:0,0:0};
+  side.forEach(([c,k])=>{const m=getMol(k); m.atoms.forEach(a=>{if(a.el!=='e'){el[a.el]=(el[a.el]||0)+c; mass+=c*EL[a.el].m} charge+=c*a.charge}); m.bonds.forEach(b=>bonds[b.o]+=c)});
+  return {el,charge,mass,bonds};
+}
+const ORDER=['C','H','O','N','S','Cl','Cu','Ag','Zn','Fe'];
+
+/* ---------- Energy diagram ---------- */
+function energySVG(rx,ea,enzyme){
+  const w=300,h=170,base=55,scale=13; const rY=base+50; const pY=rY-rx.dhLevel*-1*60;
+  const peak=rY-Math.min(90,ea*scale+8); const peakC=rY-Math.min(90,ea*.4*scale+8);
+  const curve=(pk)=>`M20 ${rY} C 80 ${rY}, 110 ${pk}, 150 ${pk} S 220 ${pY}, 280 ${pY}`;
+  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Enerji diyagramı">
+  <line x1="14" y1="14" x2="14" y2="${h-22}" stroke="var(--line)" stroke-width="1.5"/>
+  <line x1="14" y1="${h-22}" x2="${w-8}" y2="${h-22}" stroke="var(--line)" stroke-width="1.5"/>
+  <text x="18" y="12" font-size="10" fill="var(--muted)" font-family="IBM Plex Mono">Enerji</text>
+  <text x="${w-8}" y="${h-8}" font-size="10" fill="var(--muted)" text-anchor="end" font-family="IBM Plex Mono">Tepkime ilerleyişi</text>
+  ${enzyme?`<path d="${curve(peakC)}" fill="none" stroke="var(--ok)" stroke-width="2" stroke-dasharray="5 4"/><text x="110" y="${peakC+16}" text-anchor="end" font-size="10" fill="var(--ok)">enzimle</text>`:''}
+  <path d="${curve(peak)}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+  <line x1="150" y1="${rY}" x2="150" y2="${peak}" stroke="var(--flame)" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <line x1="20" y1="${rY}" x2="150" y2="${rY}" stroke="var(--line)" stroke-dasharray="2 3"/>
+  <text x="156" y="${(rY+peak)/2+4}" font-size="11" fill="var(--flame)" font-weight="600">Eₐ</text>
+  <text x="22" y="${rY-6}" font-size="10" fill="var(--ink)">Girenler</text>
+  <text x="278" y="${pY-6}" font-size="10" fill="var(--ink)" text-anchor="end">Ürünler</text>
+  ${Math.abs(rY-pY)>8?`<line x1="252" y1="${rY}" x2="252" y2="${pY}" stroke="var(--muted)" stroke-width="1"/><line x1="200" y1="${rY}" x2="256" y2="${rY}" stroke="var(--line)" stroke-dasharray="2 3"/><text x="248" y="${(rY+pY)/2+4}" font-size="10" fill="var(--muted)" text-anchor="end">ΔH &lt; 0</text>`:''}
+  </svg>`;
+}
+
+/* ---------- Render ---------- */
+let cur=null, simApi=null, modelApi=null;
+const rail=document.getElementById('rail'), view=document.getElementById('view');
+RX.forEach(r=>{const b=document.createElement('button');b.className='chip';b.innerHTML=`<b>${r.no}</b>${r.kisa}`;b.dataset.id=r.id;b.addEventListener('click',()=>go(r.id,true));rail.appendChild(b)});
+
+function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+function li(a){return a.map(x=>`<li>${esc(x)}</li>`).join('')}
+
+function render(rx){
+  const tl=tally(rx.eq.r), tr=tally(rx.eq.p);
+  const els=ORDER.filter(e=>tl.el[e]||tr.el[e]);
+  const hasCharge=tl.charge!==0||tr.charge!==0||[...rx.eq.r,...rx.eq.p].some(([,k])=>SP[k].ch);
+  const S=rx.sim, eqS=rx.simEq||rx.eq;
+  const kitEls=ORDER.filter(e=>tl.el[e]); const eCount=tally(rx.eq.p).charge!==tally(rx.eq.r).charge;
+  const hasE=rx.eq.p.some(([,k])=>k==='el');
+  const big=(tl.el.C||0)+(tl.el.H||0)+(tl.el.O||0)>40;
+  view.innerHTML=`
+  <div class="hero">
+    <div class="eyebrow">Soru ${rx.no} · ${rx.kisa}</div>
+    <h1>${esc(rx.title)}</h1>
+    <div class="eq" aria-label="Tepkime denklemi">${fmtEq(rx.eq)}</div>
+    <div class="tags">${rx.tags.map(t=>`<span class="tag">${t}</span>`).join('')}<span class="tag dh">${rx.dh}</span></div>
+    <p class="q">${esc(rx.soru)}</p>
+    <p class="answer">${esc(rx.cevap)}</p>
+  </div>
+
+  <section class="block" id="sim" aria-labelledby="h-sim">
+    <div class="bhead"><h2 id="h-sim">Çarpışma simülasyonu</h2><p>Moleküller rastgele hareket eder ve çarpışır. Bir çarpışmanın ürün oluşturması için iki şart vardır: yeterli enerji (Eₐ'yı aşmak) ve uygun yönelim.</p></div>
+    ${eqS!==rx.eq?`<div class="eq" style="font-size:1rem">${fmtEq(eqS)}</div>`:''}
+    <div class="simgrid">
+      <div style="display:grid;gap:10px;min-width:0">
+        <div class="stage"><canvas aria-label="Çarpışma simülasyonu"></canvas><div class="over" id="simT"></div></div>
+        <div class="legend"><span style="color:var(--flame)"><i></i>Etkin çarpışma: ürün oluştu</span><span style="color:var(--muted)"><i></i>Enerji yetersiz</span><span style="color:var(--warn)"><i></i>Yönelim uygun değil</span></div>
+        <div class="stats">
+          <div class="stat"><b id="sTot">0</b><span>Girenler arası çarpışma</span></div>
+          <div class="stat eff"><b id="sEff">0</b><span>Etkin</span></div>
+          <div class="stat lowE"><b id="sLow">0</b><span>Enerji yetersiz</span></div>
+          <div class="stat ori"><b id="sOri">0</b><span>Yanlış yönelim</span></div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="btns"><button class="btn pri" id="bPlay">Durdur</button><button class="btn" id="bReset">Baştan başlat</button>${S.spark?'<button class="btn fire" id="bSpark">Kıvılcım çak</button>':''}</div>
+        <div class="ctl"><label for="rT">Sıcaklık <output id="oT"></output></label><input type="range" id="rT" min="200" max="900" step="10" value="${S.T}"></div>
+        <div class="ctl"><label for="rEa">Aktivasyon enerjisi (Eₐ) <output id="oEa"></output></label><input type="range" id="rEa" min="0.5" max="8" step="0.1" value="${S.ea}"></div>
+        <label class="chk"><input type="checkbox" id="cOri" checked> Yönelim şartı uygulansın</label>
+        <label class="chk"><input type="checkbox" id="cSlow"> Ağır çekim</label>
+        <div class="species" id="spc"></div>
+        <div class="energy" id="energy"></div>
+      </div>
+    </div>
+    ${rx.simNote?`<p class="note">${esc(rx.simNote)}</p>`:''}
+  </section>
+
+  <section class="block" id="model" aria-labelledby="h-model">
+    <div class="bhead"><h2 id="h-model">Tanecik modeli</h2><p>Kaydırıcıyı sürükleyin veya oynatın: girenlerdeki atomların hiçbiri kaybolmadan ürünlere nasıl dağıldığını izleyin.</p></div>
+    <div class="modelgrid">
+      <div style="display:grid;gap:8px;min-width:0">
+        <div class="stagecap"></div>
+        <div class="stage"><canvas aria-label="Tanecik modeli"></canvas></div>
+        <div style="display:flex;gap:10px;align-items:center"><button class="btn pri play">Oynat</button><input type="range" min="0" max="100" value="0" style="flex:1;accent-color:var(--accent)" aria-label="Tepkimenin ilerleyişi"></div>
+      </div>
+      <div style="display:grid;gap:10px;align-content:start;min-width:0">
+        <h3>Atom sayımı ve kütlenin korunumu</h3>
+        <div class="tscroll"><table>
+          <thead><tr><th>Atom</th><th style="text-align:right">Girenler</th><th style="text-align:right">Ürünler</th><th></th></tr></thead>
+          <tbody>
+          ${els.map(e=>`<tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${EL[e].c};border:1px solid rgba(0,0,0,.25);margin-right:6px"></span>${EL[e].ad} (${e})</td><td class="n">${tl.el[e]||0}</td><td class="n">${tr.el[e]||0}</td><td class="okc">${(tl.el[e]||0)===(tr.el[e]||0)?'✓':'✗'}</td></tr>`).join('')}
+          ${hasCharge?`<tr><td>Toplam yük</td><td class="n">${tl.charge}</td><td class="n">${tr.charge>0?'+':''}${tr.charge}</td><td class="okc">${tl.charge===tr.charge?'✓':'✗'}</td></tr>`:''}
+          <tr><td>Toplam kütle (g)</td><td class="n">${tl.mass.toFixed(1)}</td><td class="n">${tr.mass.toFixed(1)}</td><td class="okc">${Math.abs(tl.mass-tr.mass)<.05?'✓':'✗'}</td></tr>
+          </tbody></table></div>
+        ${hasE?'<p class="note">Elektronlar atom değildir; sayımda yük satırında gösterilir. Zn atomunun 2 elektron vermesiyle toplam yük korunur: 0 = (+2) + 2·(−1).</p>':''}
+        <p class="note">Kütle, denklemdeki katsayılar kadar mol madde için hesaplanmıştır.</p>
+      </div>
+    </div>
+    <div class="bonds">
+      <div><h3 class="br">Kırılan bağlar</h3><ul>${li(rx.kirilan)}</ul></div>
+      <div><h3 class="fm">Oluşan bağlar</h3><ul>${li(rx.olusan)}</ul></div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="h-mek">
+    <div class="bhead"><h2 id="h-mek">Tepkime nasıl gerçekleşir?</h2></div>
+    <ol class="steps">${rx.mek.map(m=>`<li><span>${esc(m)}</span></li>`).join('')}</ol>
+  </section>
+
+  <section class="block" aria-labelledby="h-life">
+    <div class="bhead"><h2 id="h-life">Günlük hayatta</h2></div>
+    <div class="life">
+      <div class="col wide"><h3>Nerede karşılaşırız?</h3><ul>${li(rx.gunluk)}</ul></div>
+      <div class="col plus"><h3>Faydaları</h3><ul>${li(rx.fayda)}</ul></div>
+      <div class="col minus"><h3>Zararları ve riskleri</h3><ul>${li(rx.zarar)}</ul></div>
+      <div class="col wide"><h3>Neden önemli?</h3><p style="margin-top:6px">${esc(rx.onem)}</p></div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="h-kit">
+    <div class="bhead"><h2 id="h-kit">3B model rehberi</h2><p>Strafor top, pinpon topu veya oyun hamuruyla yapacağınız model için renk ve boyut önerisi. Sayılar denklemin bir tarafı içindir.</p></div>
+    <div class="kit">
+      ${kitEls.map(e=>`<div class="ball"><div class="dot" style="background:${EL[e].c}"></div><div><b>${EL[e].ad} · ${tl.el[e]} adet</b><span>${EL[e].renk}, yaklaşık ${String(EL[e].cm).replace('.',',')} cm</span></div></div>`).join('')}
+      ${hasE?`<div class="ball"><div class="dot" style="background:${EL.e.c};width:18px;height:18px;margin:9px"></div><div><b>Elektron · 2 adet</b><span>${EL.e.renk}, tel üzerinde</span></div></div>`:''}
+    </div>
+    <ul class="tips">
+      <li>Bağlar: tek bağ için ${tl.bonds[1]} kürdan veya şiş çubuğu${tl.bonds[2]?`, çift bağ için ${tl.bonds[2]} çift bükülebilir şönil tel`:''}${tl.bonds[0]?'; iyonik yapılarda çubuk kullanmadan topları birbirine yapıştırın':''} (tepkime öncesi tarafı için).</li>
+      <li>Ürün tarafı için: ${tr.bonds[1]} tek bağ${tr.bonds[2]?`, ${tr.bonds[2]} çift bağ`:''}${tr.bonds[0]?', iyonik yapıda yan yana yapıştırma':''}.</li>
+      <li>Atom büyüklüklerini oranlı tutun: hidrojen en küçük, metal atomları en büyük olsun.</li>
+      <li>Tepkime öncesi ve sonrasını aynı renk toplarla iki ayrı tabla üzerinde yapın; aynı sayıda top kullanılması atomların korunduğunu gösterir.</li>
+      ${big?'<li>Atom sayısı çok olduğu için her türden bir molekül yapıp yanına katsayı kartı koyabilirsiniz (ör. "×25").</li>':''}
+    </ul>
+  </section>
+
+  <section class="block" aria-labelledby="h-qr">
+    <div class="bhead"><h2 id="h-qr">QR kod</h2><p>Bu kodu yazdırıp modelinizin yanına koyun. Okutan kişi doğrudan bu tepkimenin sayfasına gelir.</p></div>
+    <div class="qrwrap">
+      <div class="qrcard"><div class="qrbox" id="qr"></div><small>Soru ${rx.no} · ${esc(rx.kisa)}</small></div>
+      <div style="display:grid;gap:8px;min-width:0">
+        <div class="url" id="qrurl"></div>
+        <div class="btns"><button class="btn" id="bCopy">Bağlantıyı kopyala</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="h-src">
+    <div class="bhead"><h2 id="h-src">Kaynaklar</h2></div>
+    <ul class="src">
+      <li>MEB, Ortaöğretim Kimya 10. Sınıf Ders Kitabı, "Kimyasal Tepkimeler" ünitesi.</li>
+      <li>NIST Chemistry WebBook, standart oluşum entalpileri: <a href="https://webbook.nist.gov/chemistry/" target="_blank" rel="noopener">webbook.nist.gov/chemistry</a></li>
+      <li>PubChem, bileşik bilgileri ve güvenlik verileri: <a href="https://pubchem.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">pubchem.ncbi.nlm.nih.gov</a></li>
+      <li>LibreTexts Chemistry, çarpışma teorisi ve aktivasyon enerjisi: <a href="https://chem.libretexts.org/" target="_blank" rel="noopener">chem.libretexts.org</a></li>
+      <li>MEB OGM Materyal, 10. sınıf kimya dijital içerikleri: <a href="https://ogmmateryal.eba.gov.tr/" target="_blank" rel="noopener">ogmmateryal.eba.gov.tr</a></li>
+    </ul>
+  </section>`;
+
+  // sim
+  const spc=document.getElementById('spc');
+  const ui={update(){ if(!simApi)return; const s=simApi.stats; document.getElementById('sTot').textContent=s.tot;document.getElementById('sEff').textContent=s.eff;document.getElementById('sLow').textContent=s.lowE;document.getElementById('sOri').textContent=s.ori;
+    const c=simApi.counts(); const mx=Math.max(1,...Object.values(simApi.initial));
+    spc.innerHTML=[...simApi.reac.map(r=>[r.k,false]),...simApi.prod.map(p=>[p.k,true])].map(([k,isP])=>`<div class="sp ${isP?'prod':''}"><span class="f">${plainF(k)}</span><span class="bar"><i style="width:${Math.min(100,c[k]/mx*100)}%"></i></span><em>${c[k]}</em></div>`).join('');
+    document.getElementById('simT').textContent=`anlık sıcaklık ≈ ${Math.round(simApi.curT)} K`;
+  }};
+  simApi=makeSim(document.getElementById('sim'),rx,ui); ui.update();
+  const oT=document.getElementById('oT'),oEa=document.getElementById('oEa'),en=document.getElementById('energy');
+  const showT=v=>oT.textContent=`${v} K (${v-273} °C)`; showT(S.T);
+  const showEa=v=>{oEa.textContent=(+v).toFixed(1)+' birim'; en.innerHTML=energySVG(rx,+v,!!S.enzyme)}; showEa(S.ea);
+  document.getElementById('rT').addEventListener('input',e=>{simApi.setT(+e.target.value);showT(+e.target.value)});
+  document.getElementById('rEa').addEventListener('input',e=>{simApi.setEa(+e.target.value);showEa(e.target.value)});
+  document.getElementById('cOri').addEventListener('change',e=>simApi.setOri(e.target.checked));
+  document.getElementById('cSlow').addEventListener('change',e=>simApi.setSlow(e.target.checked));
+  const bPlay=document.getElementById('bPlay'); bPlay.textContent=simApi.running?'Durdur':'Başlat';
+  bPlay.addEventListener('click',()=>{bPlay.textContent=simApi.toggle()?'Durdur':'Başlat'});
+  document.getElementById('bReset').addEventListener('click',()=>simApi.reset());
+  const bs=document.getElementById('bSpark'); if(bs) bs.addEventListener('click',()=>simApi.spark());
+  // model
+  modelApi=makeModel(document.getElementById('model'),rx);
+  // qr
+  const url=BASE_URL?BASE_URL+'#'+rx.id:'';
+  const qrEl=document.getElementById('qr'), qu=document.getElementById('qrurl');
+  if(url&&typeof QRCode!=='undefined'){new QRCode(qrEl,{text:url,width:180,height:180,colorDark:'#111111',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});qu.textContent=url}
+  else {qrEl.innerHTML='<div style="display:grid;place-items:center;height:100%;font-size:.8rem;text-align:center;color:#555">QR kodu yükleniyor</div>';qu.textContent=url||'Bağlantı yayınlandıktan sonra burada görünür.'}
+  document.getElementById('bCopy').addEventListener('click',()=>{const t=qu.textContent;
+    const done=()=>{const b=document.getElementById('bCopy');b.textContent='Kopyalandı';setTimeout(()=>b.textContent='Bağlantıyı kopyala',1500)};
+    try{navigator.clipboard.writeText(t).then(done,()=>{const r=document.createRange();r.selectNodeContents(qu);const s=getSelection();s.removeAllRanges();s.addRange(r)})}catch(e){}});
+}
+
+function go(id,push){
+  const rx=RX.find(r=>r.id===id)||RX[0];
+  if(simApi){simApi.destroy();simApi=null} if(modelApi){modelApi.destroy();modelApi=null}
+  cur=rx; render(rx);
+  [...rail.children].forEach(b=>b.setAttribute('aria-current',b.dataset.id===rx.id?'true':'false'));
+  const chip=rail.querySelector(`[data-id="${rx.id}"]`); if(chip) chip.scrollIntoView({block:'nearest',inline:'center'});
+  if(push){try{history.replaceState(null,'','#'+rx.id)}catch(e){} window.scrollTo({top:0})}
+}
+window.addEventListener('hashchange',()=>{const id=location.hash.slice(1);if(id&&(!cur||cur.id!==id))go(id,false)});
+go((location.hash||'').slice(1)||'bakir',false);
+</script>
+
+</body>
+</html>
+
+</body></html>
